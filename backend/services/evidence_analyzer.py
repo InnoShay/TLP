@@ -115,14 +115,41 @@ async def _analyze_single(
 
     except Exception as e:
         logger.warning(f"Evidence analysis failed for {raw.source_name}: {e}")
-        # Return with neutral stance as fallback
+        # Fallback keyword-matching algorithm if LLM is unavailable
+        claim_lower = claim_text.lower()
+        content_lower = raw.content.lower()
+        
+        # Simple heuristic keywords
+        contradiction_keywords = ["false", "debunked", "myth", "incorrect", "wrong", "lie", "conspiracy", "not true", "disproven"]
+        support_keywords = ["true", "proven", "fact", "confirmed", "correct", "accurate", "evidence shows", "scientists agree"]
+        
+        # Calculate scores
+        contradict_score = sum(1 for kw in contradiction_keywords if kw in content_lower)
+        support_score = sum(1 for kw in support_keywords if kw in content_lower)
+        
+        # Determine stance
+        stance = Stance.NEUTRAL
+        relevance = 0.3 # Base relevance
+        
+        # Check if the core subject is even mentioned
+        subject_words = [w for w in claim_lower.split() if len(w) > 4]
+        if any(w in content_lower for w in subject_words):
+            relevance += 0.2
+            
+            if contradict_score > support_score:
+                stance = Stance.CONTRADICTS
+                relevance += min(contradict_score * 0.1, 0.4)
+            elif support_score > contradict_score:
+                stance = Stance.SUPPORTS
+                relevance += min(support_score * 0.1, 0.4)
+
         weight = SOURCE_WEIGHTS.get(raw.source_type.value, 0.30)
         return Evidence(
             source_name=raw.source_name,
             source_type=raw.source_type,
             content=raw.content[:300],
             url=raw.url,
-            stance=Stance.NEUTRAL,
-            relevance_score=0.3,
+            stance=stance,
+            relevance_score=min(max(relevance, 0.0), 1.0),
             weight=weight,
         )

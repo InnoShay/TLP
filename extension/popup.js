@@ -192,3 +192,50 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+
+// ── Sidebar Logic ──
+const sidebar = document.getElementById("sidebar");
+const sidebarOverlay = document.getElementById("sidebar-overlay");
+const toggleSidebarBtn = document.getElementById("toggle-sidebar");
+const closeSidebarBtn = document.getElementById("close-sidebar");
+const sidebarContent = document.getElementById("sidebar-content");
+
+toggleSidebarBtn.addEventListener("click", () => {
+    sidebar.classList.add("active");
+    sidebarOverlay.classList.add("active");
+});
+
+function closeSidebar() {
+    sidebar.classList.remove("active");
+    sidebarOverlay.classList.remove("active");
+}
+
+closeSidebarBtn.addEventListener("click", closeSidebar);
+sidebarOverlay.addEventListener("click", closeSidebar);
+
+// Override displayResult to also populate sidebar
+const originalDisplayResult = displayResult;
+displayResult = function(result) {
+    originalDisplayResult(result);
+    // Populate Sidebar
+    sidebarContent.innerHTML = "";
+    const evidences = result.evidences || [];
+    
+    if (evidences.length === 0) {
+        sidebarContent.innerHTML = "<p style='color: #9ca3af; font-size: 12px; text-align: center; margin-top: 20px;'>No sources found.</p>";
+        return;
+    }
+
+    evidences.forEach((ev) => {
+        if (!ev.url) return; // Only show sources with URLs in the sidebar
+        
+        const card = document.createElement("div");
+        card.className = "sidebar-source-card";
+        card.innerHTML = `
+            <div class="sidebar-source-name">${escapeHtml(ev.source_name)}</div>
+            <div class="sidebar-source-type">${ev.source_type.replace('_', ' ')}</div>
+            <a href="${ev.url}" target="_blank" class="sidebar-link">Open Original Source ↗</a>
+        `;
+        sidebarContent.appendChild(card);
+    });
+};

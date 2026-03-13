@@ -76,7 +76,10 @@
 
             <!-- Evidence Cards -->
             <div class="evidence-section">
-                <h3 class="evidence-title">📚 Source Evidence</h3>
+                <div class="evidence-header-row">
+                    <h3 class="evidence-title">📚 Source Evidence</h3>
+                    <button id="toggle-sidebar" class="btn-sidebar">View Sources</button>
+                </div>
                 <div id="evidence-list" class="evidence-list"></div>
             </div>
         </div>
@@ -91,6 +94,18 @@
         <!-- ── Footer ── -->
         <div class="footer">
             <span>Powered by Multi-Source Consensus</span>
+        </div>
+    </div>
+
+    <!-- ── Sidebar overlay (Hidden by default) ── -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h2>Detailed Sources</h2>
+            <button id="close-sidebar" class="btn-close">✕</button>
+        </div>
+        <div class="sidebar-content" id="sidebar-content">
+            <!-- Source links will be injected here -->
         </div>
     </div>
 
