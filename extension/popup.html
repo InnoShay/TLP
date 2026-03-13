@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustLayer</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ── Header ── -->
+        <div class="header">
+            <div class="logo-row">
+                <div class="logo">⚖️</div>
+                <div>
+                    <h1>TrustLayer</h1>
+                    <p class="tagline">Truth Verification Protocol</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Input Section ── -->
+        <div class="input-section">
+            <textarea id="claim-input" placeholder="Paste or type a claim to verify..." rows="3"></textarea>
+            <button id="verify-btn" class="btn-verify">
+                <span class="btn-text">🔍 Verify Claim</span>
+                <span class="btn-loading" style="display:none;">
+                    <span class="spinner"></span> Analyzing...
+                </span>
+            </button>
+        </div>
+
+        <!-- ── Result Section (hidden initially) ── -->
+        <div id="result-section" class="result-section" style="display:none;">
+
+            <!-- Truth Score Gauge -->
+            <div class="score-card">
+                <div class="score-gauge">
+                    <svg viewBox="0 0 120 120" class="gauge-svg">
+                        <circle cx="60" cy="60" r="52" class="gauge-bg" />
+                        <circle cx="60" cy="60" r="52" class="gauge-fill" id="gauge-fill"
+                                stroke-dasharray="327" stroke-dashoffset="327" />
+                    </svg>
+                    <div class="score-value" id="score-value">0%</div>
+                </div>
+                <div class="score-info">
+                    <div class="classification-badge" id="classification-badge">Analyzing</div>
+                    <div class="confidence-row">
+                        <span class="confidence-label">Confidence</span>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidence-fill"></div>
+                        </div>
+                        <span class="confidence-value" id="confidence-value">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evidence Stats -->
+            <div class="stats-row">
+                <div class="stat stat-support">
+                    <span class="stat-icon">✅</span>
+                    <span class="stat-count" id="support-count">0</span>
+                    <span class="stat-label">Support</span>
+                </div>
+                <div class="stat stat-contradict">
+                    <span class="stat-icon">❌</span>
+                    <span class="stat-count" id="contradict-count">0</span>
+                    <span class="stat-label">Contradict</span>
+                </div>
+                <div class="stat stat-neutral">
+                    <span class="stat-icon">➖</span>
+                    <span class="stat-count" id="neutral-count">0</span>
+                    <span class="stat-label">Neutral</span>
+                </div>
+            </div>
+
+            <!-- Evidence Cards -->
+            <div class="evidence-section">
+                <h3 class="evidence-title">📚 Source Evidence</h3>
+                <div id="evidence-list" class="evidence-list"></div>
+            </div>
+        </div>
+
+        <!-- ── Error Section ── -->
+        <div id="error-section" class="error-section" style="display:none;">
+            <div class="error-icon">⚠️</div>
+            <div class="error-message" id="error-message">Something went wrong</div>
+            <button class="btn-retry" id="retry-btn">Retry</button>
+        </div>
+
+        <!-- ── Footer ── -->
+        <div class="footer">
+            <span>Powered by Multi-Source Consensus</span>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

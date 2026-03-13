@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustLayer — Sequence Diagram</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #ffffff;
+            color: #1a1a2e;
+            padding: 40px 60px;
+        }
+
+        /* ── Header ── */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #111;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            font-size: 15px;
+            color: #888;
+            margin-top: 4px;
+        }
+        .header-line {
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #3b82f6);
+            border-radius: 2px;
+            margin: 14px auto 0;
+        }
+
+        /* ── Sequence Container ── */
+        .sequence {
+            position: relative;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* ── Participants ── */
+        .participants {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .participant {
+            width: 150px;
+            text-align: center;
+        }
+
+        .participant-box {
+            padding: 12px 8px;
+            border-radius: 10px;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+
+        .p-user .participant-box { background: #3b82f6; }
+        .p-ext .participant-box { background: #6366f1; }
+        .p-api .participant-box { background: #0891b2; }
+        .p-claim .participant-box { background: #7c3aed; }
+        .p-source .participant-box { background: #db2777; }
+        .p-consensus .participant-box { background: #059669; }
+
+        .participant-sub {
+            font-size: 10px;
+            font-weight: 500;
+            color: #999;
+            margin-top: 5px;
+            line-height: 1.3;
+        }
+
+        /* ── Lifelines ── */
+        .lifelines {
+            position: relative;
+            z-index: 1;
+        }
+
+        .lifeline-row {
+            display: flex;
+            justify-content: space-between;
+            height: 0;
+        }
+
+        .lifeline {
+            width: 150px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .lifeline-line {
+            width: 2px;
+            background: repeating-linear-gradient(
+                to bottom,
+                #d1d5db 0px, #d1d5db 6px,
+                transparent 6px, transparent 12px
+            );
+            position: absolute;
+            top: 0;
+            bottom: 0;
+        }
+
+        /* ── Messages Area ── */
+        .messages {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .msg {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            height: 52px;
+            align-items: center;
+        }
+
+        .msg-spacer {
+            height: 8px;
+        }
+
+        /* Lifeline backgrounds for each message row */
+        .msg .ll {
+            width: 150px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .msg .ll::before {
+            content: '';
+            width: 2px;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                #d4d4d8 0px, #d4d4d8 5px,
+                transparent 5px, transparent 10px
+            );
+        }
+
+        /* ── Arrow ── */
+        .arrow-container {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            z-index: 3;
+        }
+
+        .arrow-line {
+            height: 2.5px;
+            flex: 1;
+        }
+
+        .arrow-solid { background: #374151; }
+        .arrow-dashed {
+            background: repeating-linear-gradient(
+                90deg,
+                #6b7280 0px, #6b7280 8px,
+                transparent 8px, transparent 14px
+            );
+            height: 2px;
+        }
+
+        .arrow-head-right {
+            width: 0; height: 0;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            border-left: 10px solid #374151;
+        }
+
+        .arrow-head-left {
+            width: 0; height: 0;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            border-right: 10px solid #6b7280;
+        }
+
+        .arrow-label {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            white-space: nowrap;
+            background: white;
+            padding: 0 6px;
+        }
+
+        .arrow-label-mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #6366f1;
+        }
+
+        .arrow-label-return {
+            color: #888;
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        /* ── Self-call ── */
+        .self-call {
+            position: absolute;
+            z-index: 3;
+        }
+
+        .self-call-box {
+            border: 2.5px solid #374151;
+            border-left: none;
+            width: 40px;
+            height: 28px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .self-call-label {
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            white-space: nowrap;
+        }
+
+        /* ── Activation Bar ── */
+        .activation {
+            position: absolute;
+            width: 12px;
+            border-radius: 3px;
+            z-index: 2;
+            opacity: 0.2;
+        }
+
+        /* ── Step Numbers ── */
+        .step-num {
+            position: absolute;
+            left: -36px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: 1.5px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        /* ── Group Box (for source queries) ── */
+        .group-box {
+            border: 2px dashed #e5e7eb;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin: 4px 0;
+            position: relative;
+        }
+
+        .group-label {
+            position: absolute;
+            top: -10px;
+            left: 16px;
+            background: white;
+            padding: 0 8px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ── Table Layout for clarity ── */
+        .seq-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .seq-table td {
+            position: relative;
+            text-align: center;
+            vertical-align: middle;
+            padding: 0;
+        }
+
+        .col { width: calc(100% / 6); }
+
+        /* ── Row styling ── */
+        .seq-row {
+            height: 56px;
+            position: relative;
+        }
+
+        .seq-row-tall {
+            height: 68px;
+        }
+
+        .seq-row td {
+            position: relative;
+        }
+
+        /* Dashed lifeline in each cell */
+        .seq-row td::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            transform: translateX(-50%);
+            background: repeating-linear-gradient(
+                to bottom,
+                #d4d4d8 0px, #d4d4d8 5px,
+                transparent 5px, transparent 10px
+            );
+        }
+
+        /* ── Arrow drawn via SVG overlay ── */
+        .svg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* ── CUSTOM IMPLEMENTATION ── */
+        .diagram-body {
+            position: relative;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            min-height: 54px;
+            position: relative;
+        }
+
+        .row.spacer { min-height: 10px; }
+
+        .cell {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Dashed lifeline */
+        .cell::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 1.5px;
+            transform: translateX(-50%);
+            background: repeating-linear-gradient(
+                to bottom,
+                #cbd5e1 0px, #cbd5e1 5px,
+                transparent 5px, transparent 10px
+            );
+            z-index: 0;
+        }
+
+        /* Message arrow spanning cells */
+        .arrow-overlay {
+            position: absolute;
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .arrow-overlay .line {
+            flex: 1;
+            height: 2.5px;
+        }
+
+        .arrow-overlay .line.solid { background: #334155; }
+        .arrow-overlay .line.dashed {
+            background: none;
+            border-top: 2.5px dashed #94a3b8;
+            height: 0;
+        }
+
+        .arrow-overlay .head-r {
+            width: 0; height: 0;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            border-left: 11px solid #334155;
+        }
+
+        .arrow-overlay .head-l {
+            width: 0; height: 0;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            border-right: 11px solid #94a3b8;
+        }
+
+        .arrow-overlay .label {
+            position: absolute;
+            top: -19px;
+            white-space: nowrap;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #334155;
+            background: #fff;
+            padding: 0 4px;
+        }
+
+        .arrow-overlay .label.center { left: 50%; transform: translateX(-50%); }
+        .arrow-overlay .label.ret { color: #64748b; font-weight: 500; font-style: italic; font-size: 12px; }
+        .arrow-overlay .label.mono { font-family: 'JetBrains Mono', monospace; color: #6366f1; font-size: 11.5px; }
+
+        /* Self-call arrow */
+        .self-arrow {
+            position: absolute;
+            z-index: 4;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .self-arrow-path {
+            width: 60px;
+            height: 30px;
+            border: 2.5px solid #334155;
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .self-arrow .label {
+            position: absolute;
+            left: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: #334155;
+            white-space: nowrap;
+        }
+
+        .self-arrow .head {
+            position: absolute;
+            bottom: -1px;
+            left: -5px;
+            width: 0; height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #334155;
+        }
+
+        /* ── Step badge ── */
+        .step-badge {
+            position: absolute;
+            left: -42px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            z-index: 5;
+        }
+
+        /* ── Note box ── */
+        .note-box {
+            position: absolute;
+            z-index: 5;
+            background: #fffbeb;
+            border: 1.5px solid #fde68a;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #92400e;
+            white-space: nowrap;
+        }
+
+        /* ── Parallel / loop fragment ── */
+        .fragment {
+            border: 2px dashed #d1d5db;
+            border-radius: 10px;
+            position: relative;
+            margin: 6px 0;
+            padding: 6px 0;
+        }
+
+        .fragment-label {
+            position: absolute;
+            top: -11px;
+            left: 14px;
+            background: #fff;
+            padding: 0 10px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        /* ── Legend ── */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .legend-line {
+            width: 30px;
+            height: 2.5px;
+        }
+
+        .legend-line.solid { background: #334155; }
+        .legend-line.dashed { border-top: 2.5px dashed #94a3b8; height: 0; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>TrustLayer — Sequence Diagram</h1>
+        <p>Claim Verification Request Flow</p>
+        <div class="header-line"></div>
+    </div>
+
+    <div class="sequence" style="position: relative; padding-left: 50px;">
+
+        <!-- ═══ Participant Headers ═══ -->
+        <div class="row" style="min-height: auto; margin-bottom: 20px;">
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-user"><div class="participant-box">👤 User</div>
+                <div class="participant-sub">Web Browser</div></div>
+            </div>
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-ext"><div class="participant-box">🧩 Extension</div>
+                <div class="participant-sub">Chrome Extension</div></div>
+            </div>
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-api"><div class="participant-box">🚀 Backend API</div>
+                <div class="participant-sub">FastAPI Server</div></div>
+            </div>
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-claim"><div class="participant-box">🧠 Claim Extractor</div>
+                <div class="participant-sub">NLP / OpenAI</div></div>
+            </div>
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-source"><div class="participant-box">📚 Source Aggregator</div>
+                <div class="participant-sub">Multi-Source Search</div></div>
+            </div>
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-consensus"><div class="participant-box">⚖️ Consensus Engine</div>
+                <div class="participant-sub">Truth Scoring</div></div>
+            </div>
+        </div>
+
+        <!-- ═══ Message Rows ═══ -->
+
+        <!-- S1: User → Extension -->
+        <div class="row" style="min-height: 58px;">
+            <div class="step-badge">1</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="arrow-overlay" style="left: calc(100%/12); right: calc(100% - 100%/12*3); ">
+                <div class="line solid" style="flex:1;"></div>
+                <div class="head-r"></div>
+                <div class="label center">Highlights text on webpage</div>
+            </div>
+        </div>
+
+        <!-- S2: Extension → Extension (self) -->
+        <div class="row" style="min-height: 54px;">
+            <div class="step-badge">2</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="self-arrow" style="left: calc(100%/6*1 + 100%/12 - 1px);">
+                <div class="self-arrow-path"></div>
+                <div class="head"></div>
+                <div class="label">extractContext(selection)</div>
+            </div>
+        </div>
+
+        <!-- S3: Extension → Backend API -->
+        <div class="row" style="min-height: 58px;">
+            <div class="step-badge">3</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="arrow-overlay" style="left: calc(100%/12*3); right: calc(100% - 100%/12*5);">
+                <div class="line solid" style="flex:1;"></div>
+                <div class="head-r"></div>
+                <div class="label center mono">POST /api/verify { text, url }</div>
+            </div>
+        </div>
+
+        <!-- S4: Backend → Backend (self) -->
+        <div class="row" style="min-height: 54px;">
+            <div class="step-badge">4</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="self-arrow" style="left: calc(100%/6*2 + 100%/12 - 1px);">
+                <div class="self-arrow-path"></div>
+                <div class="head"></div>
+                <div class="label">validate() + checkRedisCache()</div>
+            </div>
+        </div>
+
+        <!-- S5: Backend → Claim Extractor -->
+        <div class="row" style="min-height: 58px;">
+            <div class="step-badge">5</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="arrow-overlay" style="left: calc(100%/12*5); right: calc(100% - 100%/12*7);">
+                <div class="line solid" style="flex:1;"></div>
+                <div class="head-r"></div>
+                <div class="label center">extractClaims(text)</div>
+            </div>
+        </div>
+
+        <!-- S6: Claim Extractor → self -->
+        <div class="row" style="min-height: 54px;">
+            <div class="step-badge">6</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="self-arrow" style="left: calc(100%/6*3 + 100%/12 - 1px);">
+                <div class="self-arrow-path"></div>
+                <div class="head"></div>
+                <div class="label">LLM Processing (OpenAI API)</div>
+            </div>
+            <div class="note-box" style="right: 2px; top: 4px;">📌 NER + Relation Extraction</div>
+        </div>
+
+        <!-- S7: Claim Extractor → Backend (return) -->
+        <div class="row" style="min-height: 58px;">
+            <div class="step-badge">7</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="arrow-overlay" style="left: calc(100%/12*5); right: calc(100% - 100%/12*7);">
+                <div class="head-l"></div>
+                <div class="line dashed" style="flex:1;"></div>
+                <div class="label center ret">return List[Claim]</div>
+            </div>
+        </div>
+
+        <!-- S8: Backend → Source Aggregator -->
+        <div class="row" style="min-height: 58px;">
+            <div class="step-badge">8</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="arrow-overlay" style="left: calc(100%/12*5); right: calc(100% - 100%/12*9);">
+                <div class="line solid" style="flex:1;"></div>
+                <div class="head-r"></div>
+                <div class="label center">searchSources(claims)</div>
+            </div>
+        </div>
+
+        <!-- Fragment: Parallel source queries -->
+        <div class="fragment">
+            <div class="fragment-label">PARALLEL — Multi-Source Query</div>
+
+            <!-- S9: Source → self (Wikipedia) -->
+            <div class="row" style="min-height: 52px;">
+                <div class="step-badge">9</div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="self-arrow" style="left: calc(100%/6*4 + 100%/12 - 1px);">
+                    <div class="self-arrow-path"></div>
+                    <div class="head"></div>
+                    <div class="label">queryWikipedia(claim) → neutral, w=0.70</div>
+                </div>
+            </div>
+
+            <!-- S10: Source → self (News) -->
+            <div class="row" style="min-height: 52px;">
+                <div class="step-badge">10</div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="self-arrow" style="left: calc(100%/6*4 + 100%/12 - 1px);">
+                    <div class="self-arrow-path"></div>
+                    <div class="head"></div>
+                    <div class="label">queryNewsAPI(claim) → contradicts, w=0.80</div>
+                </div>
+            </div>
+
+            <!-- S11: Source → self (Gov) -->
+            <div class="row" style="min-height: 52px;">
+                <div class="step-badge">11</div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="self-arrow" style="left: calc(100%/6*4 + 100%/12 - 1px);">
+                    <div class="self-arrow-path"></div>
+                    <div class="head"></div>
+                    <div class="label">queryGovData(claim) → contradicts, w=0.95</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- S12: Source → Backend (return) -->
+        <div class="row" style="min-height: 58px;">
+            <div class="step-badge">12</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="arrow-overlay" style="left: calc(100%/12*5); right: calc(100% - 100%/12*9);">
+                <div class="head-l"></div>
+                <div class="line dashed" style="flex:1;"></div>
+                <div class="label center ret">return List[Evidence]</div>
+            </div>
+        </div>
+
+        <!-- S13: Backend → Consensus Engine -->
+        <div class="row" style="min-height: 58px;">
+            <div class="step-badge">13</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="arrow-overlay" style="left: calc(100%/12*5); right: calc(100% - 100%/12*11);">
+                <div class="line solid" style="flex:1;"></div>
+                <div class="head-r"></div>
+                <div class="label center">calculateScore(evidences)</div>
+            </div>
+        </div>
+
+        <!-- S14: Consensus → self -->
+        <div class="row" style="min-height: 54px;">
+            <div class="step-badge">14</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="self-arrow" style="left: calc(100%/6*5 + 100%/12 - 1px);">
+                <div class="self-arrow-path" style="width: 50px;"></div>
+                <div class="head"></div>
+                <div class="label" style="left: 60px;">weightEvidence() + classifyResult()</div>
+            </div>
+        </div>
+
+        <!-- S15: Consensus → Backend (return) -->
+        <div class="row" style="min-height: 58px;">
+            <div class="step-badge">15</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="arrow-overlay" style="left: calc(100%/12*5); right: calc(100% - 100%/12*11);">
+                <div class="head-l"></div>
+                <div class="line dashed" style="flex:1;"></div>
+                <div class="label center ret">TruthScore { 0.15, "Likely False", 87% }</div>
+            </div>
+        </div>
+
+        <!-- S16: Backend → self (cache + store) -->
+        <div class="row" style="min-height: 54px;">
+            <div class="step-badge">16</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="self-arrow" style="left: calc(100%/6*2 + 100%/12 - 1px);">
+                <div class="self-arrow-path"></div>
+                <div class="head"></div>
+                <div class="label">cacheResult(Redis) + store(PostgreSQL)</div>
+            </div>
+        </div>
+
+        <!-- S17: Backend → Extension (return) -->
+        <div class="row" style="min-height: 58px;">
+            <div class="step-badge">17</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="arrow-overlay" style="left: calc(100%/12*3); right: calc(100% - 100%/12*5);">
+                <div class="head-l"></div>
+                <div class="line dashed" style="flex:1;"></div>
+                <div class="label center ret">VerificationResponse</div>
+            </div>
+        </div>
+
+        <!-- S18: Extension → self -->
+        <div class="row" style="min-height: 54px;">
+            <div class="step-badge">18</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="self-arrow" style="left: calc(100%/6*1 + 100%/12 - 1px);">
+                <div class="self-arrow-path"></div>
+                <div class="head"></div>
+                <div class="label">renderTruthScore() + displaySources()</div>
+            </div>
+        </div>
+
+        <!-- S19: Extension → User -->
+        <div class="row" style="min-height: 58px;">
+            <div class="step-badge">19</div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="arrow-overlay" style="left: calc(100%/12); right: calc(100% - 100%/12*3);">
+                <div class="head-l"></div>
+                <div class="line solid" style="flex:1;"></div>
+                <div class="label center" style="color: #dc2626; font-weight: 700;">🔴 Display: Likely False — 15%</div>
+            </div>
+        </div>
+
+        <!-- ═══ Bottom Participant boxes ═══ -->
+        <div class="row" style="min-height: auto; margin-top: 20px;">
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-user"><div class="participant-box">👤 User</div></div>
+            </div>
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-ext"><div class="participant-box">🧩 Extension</div></div>
+            </div>
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-api"><div class="participant-box">🚀 Backend API</div></div>
+            </div>
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-claim"><div class="participant-box">🧠 Claim Extractor</div></div>
+            </div>
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-source"><div class="participant-box">📚 Source Aggregator</div></div>
+            </div>
+            <div class="cell" style="padding: 0 4px;">
+                <div class="participant p-consensus"><div class="participant-box">⚖️ Consensus Engine</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-line solid"></div>
+            Synchronous Call
+        </div>
+        <div class="legend-item">
+            <div class="legend-line dashed"></div>
+            Return / Response
+        </div>
+        <div class="legend-item">
+            <span style="font-size: 14px;">⤻</span>
+            Self-call (internal)
+        </div>
+        <div class="legend-item">
+            <span style="border: 2px dashed #d1d5db; border-radius: 4px; width: 20px; height: 14px; display: inline-block;"></span>
+            Parallel Fragment
+        </div>
+    </div>
+
+</body>
+</html>
