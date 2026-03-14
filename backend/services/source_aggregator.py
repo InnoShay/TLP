@@ -5,7 +5,7 @@ import logging
 from typing import Optional
 
 import httpx
-from ddgs import DDGS
+from duckduckgo_search import DDGS
 
 from models import Claim, SourceType
 
@@ -41,7 +41,14 @@ async def search_duckduckgo(claim: Claim, max_results: int = 5) -> list[RawEvide
     evidences = []
     try:
         ddgs = DDGS()
+        # Try default backend (Bing wrapper)
         results = ddgs.text(query, max_results=max_results)
+        
+        # If Bing wrapper is blocked (returns []), fallback to HTML backend
+        if not results:
+            logger.warning("DuckDuckGo default backend returned 0 results. Falling back to HTML backend.")
+            results = ddgs.text(query, max_results=max_results, backend="html")
+            
         for r in results:
             evidences.append(
                 RawEvidence(
@@ -62,32 +69,21 @@ async def search_duckduckgo(claim: Claim, max_results: int = 5) -> list[RawEvide
 async def search_wikipedia(claim: Claim) -> list[RawEvidence]:
     """Search Wikipedia for information related to the claim."""
     evidences = []
-    query = f"{claim.subject} {claim.object}"
+    
+    # Use original text for the search query, it's safer than extracted subject/object
+    search_query = claim.original_text
+    # Extract just the main nouns for the summary article lookup
+    article_lookup = claim.subject if claim.subject and claim.subject != "Unknown" else claim.original_text.split()[0]
+    
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            # Search for relevant articles
-            search_url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + claim.subject.replace(" ", "_")
-            resp = await client.get(search_url)
-
-            if resp.status_code == 200:
-                data = resp.json()
-                extract = data.get("extract", "")
-                if extract:
-                    evidences.append(
-                        RawEvidence(
-                            source_name="Wikipedia",
-                            source_type=SourceType.WIKIPEDIA,
-                            content=extract[:500],
-                            url=data.get("content_urls", {}).get("desktop", {}).get("page"),
-                        )
-                    )
-
-            # Also try the search endpoint for broader coverage
+        headers = {"User-Agent": "TrustLayerMVP/1.0 (https://github.com/test/TLP; test@example.com) httpx/0.28.1"}
+        async with httpx.AsyncClient(headers=headers, timeout=15) as client:
+            # 1. Try the search endpoint for broader coverage
             search_api = "https://en.wikipedia.org/w/api.php"
             params = {
                 "action": "query",
                 "list": "search",
-                "srsearch": claim.original_text,
+                "srsearch": search_query,
                 "format": "json",
                 "srlimit": 3,
             }
@@ -103,6 +99,23 @@ async def search_wikipedia(claim: Claim) -> list[RawEvidence]:
                                 source_type=SourceType.WIKIPEDIA,
                                 content=f"{r.get('title', '')}: {snippet}",
                                 url=f"https://en.wikipedia.org/wiki/{r.get('title', '').replace(' ', '_')}",
+                            )
+                        )
+
+            # 2. Add the direct article summary if possible
+            if article_lookup:
+                summary_url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + article_lookup.replace(" ", "_")
+                resp = await client.get(summary_url)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    extract = data.get("extract", "")
+                    if extract:
+                        evidences.append(
+                            RawEvidence(
+                                source_name="Wikipedia",
+                                source_type=SourceType.WIKIPEDIA,
+                                content=extract[:500],
+                                url=data.get("content_urls", {}).get("desktop", {}).get("page"),
                             )
                         )
 
