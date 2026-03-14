@@ -45,15 +45,20 @@ async def verify_claim(request: VerifyRequest, session: AsyncSession = Depends(g
     logger.info("🧠 Step 2: Extracting claims...")
     claims = await extract_claims(request.text)
     if not claims:
-        # If no claims extracted, treat the whole text as one claim
-        from models import Claim, ClaimType
-        claims = [Claim(
-            subject="Unknown",
-            predicate="states",
-            object=request.text[:200],
+        # If no factual claims are found, return a definitive "Not Verifiable" result
+        logger.info("❌ No verifiable factual claims found in text. Returning early.")
+        claim_id = str(uuid.uuid4())[:8]
+        response = VerificationResponse(
+            claim_id=claim_id,
             original_text=request.text,
-            claim_type=ClaimType.FACTUAL,
-        )]
+            claims=[],
+            truth_score=0.0,
+            classification=Classification.NOT_VERIFIABLE,
+            confidence=0.0,
+            evidences=[],
+            timestamp=datetime.utcnow(),
+        )
+        return response
 
     # ── Step 3: Search knowledge sources (parallel) ──
     logger.info("🔍 Step 3: Searching knowledge sources...")
@@ -63,6 +68,21 @@ async def verify_claim(request: VerifyRequest, session: AsyncSession = Depends(g
     # ── Step 4: Analyze evidence stance ──
     logger.info("🔬 Step 4: Analyzing evidence stance...")
     analyzed_evidences = await analyze_evidence(primary_claim.original_text, raw_evidences)
+
+    if not analyzed_evidences:
+        logger.info("❌ No verifiable evidence found. Returning Not Verifiable.")
+        claim_id = str(uuid.uuid4())[:8]
+        response = VerificationResponse(
+            claim_id=claim_id,
+            original_text=request.text,
+            claims=claims,
+            truth_score=0.0,
+            classification=Classification.NOT_VERIFIABLE,
+            confidence=0.0,
+            evidences=[],
+            timestamp=datetime.utcnow(),
+        )
+        return response
 
     # ── Step 5: Calculate consensus score ──
     logger.info("⚖️ Step 5: Calculating consensus score...")

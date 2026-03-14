@@ -1,0 +1,611 @@
+INFO:     Will watch for changes in these directories: ['/Users/demo/Downloads/Truth Layer/backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [1375] using WatchFiles
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/api_core/_python_version_support.py:246: FutureWarning: You are using a non-supported Python version (3.9.6). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/Users/demo/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+INFO:     Started server process [1432]
+INFO:     Waiting for application startup.
+07:19:06 | INFO    | trustlayer                | 🚀 Starting TrustLayer API...
+07:19:06 | INFO    | trustlayer                | ✅ Database initialized
+07:19:06 | WARNING | services.cache            | ⚠️ Redis unavailable (Error 61 connecting to localhost:6379. Connection refused.), using fallback in-memory cache
+07:19:06 | INFO    | trustlayer                | ✅ Cache connected
+07:19:06 | INFO    | trustlayer                | ============================================================
+07:19:06 | INFO    | trustlayer                |    TrustLayer API is ready!
+07:19:06 | INFO    | trustlayer                |    Docs: http://localhost:8000/docs
+07:19:06 | INFO    | trustlayer                | ============================================================
+INFO:     Application startup complete.
+07:19:16 | INFO    | routers.verify            | 🚀 Verification request: 'Photosynthesis is the process used by plants to convert light energy into chemic...'
+07:19:16 | INFO    | routers.verify            | 🧠 Step 2: Extracting claims...
+07:19:17 | ERROR   | services.claim_extractor  | Gemini claim extraction failed: 403 Your API key was reported as leaked. Please use another API key.
+07:19:17 | INFO    | routers.verify            | 🔍 Step 3: Searching knowledge sources...
+/Users/demo/Downloads/Truth Layer/backend/services/source_aggregator.py:52: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  ddgs = DDGS()
+07:19:17 | INFO    | primp                     | response: https://www.bing.com/search?q=Photosynthesis+is+the+process+used+by 200
+07:19:17 | WARNING | services.source_aggregator | DuckDuckGo default backend returned 0 results. Falling back to HTML backend.
+07:19:18 | INFO    | primp                     | response: https://www.bing.com/search?q=Photosynthesis+is+the+process+used+by 200
+07:19:18 | INFO    | services.source_aggregator | 🔍 DuckDuckGo: found 0 results
+07:19:19 | INFO    | httpx                     | HTTP Request: GET https://factchecktools.googleapis.com/v1alpha1/claims:search?query=Photosynthesis+is+the+process+used+by+plants+to+convert+light+energy+into+chemical+energy.&pageSize=5 "HTTP/1.1 403 Forbidden"
+07:19:19 | INFO    | services.source_aggregator | ✅ Fact Check API: found 0 results
+07:19:19 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=Photosynthesis+is+the+process+used+by+plants+to+convert+light+energy+into+chemical+energy.&format=json&srlimit=3 "HTTP/1.1 200 OK"
+07:19:20 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/api/rest_v1/page/summary/Photosynthesis "HTTP/1.1 200 OK"
+07:19:20 | INFO    | services.source_aggregator | 📚 Wikipedia: found 4 results
+07:19:20 | INFO    | services.source_aggregator | 📊 Total raw evidence gathered: 4 from all sources
+07:19:20 | INFO    | routers.verify            | 🔬 Step 4: Analyzing evidence stance...
+07:19:20 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 39.4190493s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 39
+}
+]
+07:19:21 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 403 Your API key was reported as leaked. Please use another API key.
+07:19:21 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 38.197935997s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 38
+}
+]
+07:19:22 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 403 Your API key was reported as leaked. Please use another API key.
+07:19:22 | INFO    | services.evidence_analyzer | 🔬 Analyzed 4 evidence items
+07:19:22 | INFO    | routers.verify            | ⚖️ Step 5: Calculating consensus score...
+07:19:22 | INFO    | services.consensus        | ⚖️ Consensus: score=1.000, confidence=0.800, classification=Verified (S:4 C:0 N:0)
+07:19:22 | INFO    | routers.verify            | 💾 Stored verification f8f4fdf3 in database
+07:19:22 | INFO    | routers.verify            | ✅ Verification complete: Verified (score=1.000, confidence=0.800)
+INFO:     127.0.0.1:57633 - "POST /api/verify HTTP/1.1" 200 OK
+07:21:15 | INFO    | routers.verify            | 🚀 Verification request: 'Fintech, or financial technology, is a term that describes the mobile applicatio...'
+07:21:15 | INFO    | routers.verify            | 🧠 Step 2: Extracting claims...
+07:21:16 | ERROR   | services.claim_extractor  | Gemini claim extraction failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 43.574941507s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 43
+}
+]
+07:21:16 | INFO    | routers.verify            | 🔍 Step 3: Searching knowledge sources...
+/Users/demo/Downloads/Truth Layer/backend/services/source_aggregator.py:52: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  ddgs = DDGS()
+07:21:16 | INFO    | primp                     | response: https://www.bing.com/search?q=Fintech+or+financial+technology+is+a 200
+07:21:17 | WARNING | services.source_aggregator | DuckDuckGo default backend returned 0 results. Falling back to HTML backend.
+07:21:17 | INFO    | primp                     | response: https://www.bing.com/search?q=Fintech+or+financial+technology+is+a 200
+07:21:17 | INFO    | services.source_aggregator | 🔍 DuckDuckGo: found 0 results
+07:21:18 | INFO    | httpx                     | HTTP Request: GET https://factchecktools.googleapis.com/v1alpha1/claims:search?query=Fintech%2C+or%C2%A0financial+technology%2C+is+a+term+that+describes+the%C2%A0mobile+applications%2C%C2%A0software%C2%A0and+other+technology+that+enable+users+and+enterprises+to+access+and+manage+their+finances+digitally.&pageSize=5 "HTTP/1.1 403 Forbidden"
+07:21:18 | INFO    | services.source_aggregator | ✅ Fact Check API: found 0 results
+07:21:18 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=Fintech%2C+or%C2%A0financial+technology%2C+is+a+term+that+describes+the%C2%A0mobile+applications%2C%C2%A0software%C2%A0and+other+technology+that+enable+users+and+enterprises+to+access+and+manage+their+finances+digitally.&format=json&srlimit=3 "HTTP/1.1 200 OK"
+07:21:19 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/api/rest_v1/page/summary/Fintech, "HTTP/1.1 404 Not Found"
+07:21:19 | INFO    | services.source_aggregator | 📚 Wikipedia: found 0 results
+07:21:19 | INFO    | services.source_aggregator | 📊 Total raw evidence gathered: 0 from all sources
+07:21:19 | INFO    | routers.verify            | 🔬 Step 4: Analyzing evidence stance...
+07:21:19 | INFO    | routers.verify            | ❌ No verifiable evidence found. Returning Not Verifiable.
+INFO:     127.0.0.1:57693 - "POST /api/verify HTTP/1.1" 200 OK
+07:21:33 | INFO    | routers.verify            | 🚀 Verification request: 'LLD is the best thing to add after HLD to maximize hackathon judging scores....'
+07:21:33 | INFO    | routers.verify            | 🧠 Step 2: Extracting claims...
+07:21:34 | ERROR   | services.claim_extractor  | Gemini claim extraction failed: 403 Your API key was reported as leaked. Please use another API key.
+07:21:34 | INFO    | routers.verify            | 🔍 Step 3: Searching knowledge sources...
+/Users/demo/Downloads/Truth Layer/backend/services/source_aggregator.py:52: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  ddgs = DDGS()
+07:21:34 | INFO    | primp                     | response: https://www.bing.com/search?q=LLD+is+the+best+thing+to 200
+07:21:34 | WARNING | services.source_aggregator | DuckDuckGo default backend returned 0 results. Falling back to HTML backend.
+07:21:35 | INFO    | primp                     | response: https://www.bing.com/search?q=LLD+is+the+best+thing+to 200
+07:21:35 | INFO    | services.source_aggregator | 🔍 DuckDuckGo: found 0 results
+07:21:35 | INFO    | httpx                     | HTTP Request: GET https://factchecktools.googleapis.com/v1alpha1/claims:search?query=LLD+is+the+best+thing+to+add+after+HLD+to+maximize+hackathon+judging+scores.&pageSize=5 "HTTP/1.1 403 Forbidden"
+07:21:35 | INFO    | services.source_aggregator | ✅ Fact Check API: found 0 results
+07:21:36 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=LLD+is+the+best+thing+to+add+after+HLD+to+maximize+hackathon+judging+scores.&format=json&srlimit=3 "HTTP/1.1 200 OK"
+07:21:36 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/api/rest_v1/page/summary/LLD "HTTP/1.1 200 OK"
+07:21:36 | INFO    | services.source_aggregator | 📚 Wikipedia: found 1 results
+07:21:36 | INFO    | services.source_aggregator | 📊 Total raw evidence gathered: 1 from all sources
+07:21:36 | INFO    | routers.verify            | 🔬 Step 4: Analyzing evidence stance...
+07:21:37 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 22.864348443s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 22
+}
+]
+07:21:37 | INFO    | services.evidence_analyzer | 🔬 Analyzed 1 evidence items
+07:21:37 | INFO    | routers.verify            | ⚖️ Step 5: Calculating consensus score...
+07:21:37 | INFO    | services.consensus        | ⚖️ Consensus: score=0.500, confidence=0.100, classification=Uncertain (S:0 C:0 N:1)
+07:21:37 | INFO    | routers.verify            | 💾 Stored verification 91c35ffa in database
+07:21:37 | INFO    | routers.verify            | ✅ Verification complete: Uncertain (score=0.500, confidence=0.100)
+INFO:     127.0.0.1:57700 - "POST /api/verify HTTP/1.1" 200 OK
+07:21:44 | INFO    | routers.verify            | 🚀 Verification request: 'LLD is the best thing to add after HLD to maximize hackathon judging scores....'
+07:21:44 | INFO    | services.cache            | 🎯 Fallback cache HIT for key tl:61226121935f2c01
+07:21:44 | INFO    | routers.verify            | ⚡ Returning cached result
+INFO:     127.0.0.1:57710 - "POST /api/verify HTTP/1.1" 200 OK
+07:26:08 | INFO    | routers.verify            | 🚀 Verification request: 'Overnight curling methods are a great way to achieve natural-looking curls witho...'
+07:26:08 | INFO    | routers.verify            | 🧠 Step 2: Extracting claims...
+07:26:09 | ERROR   | services.claim_extractor  | Gemini claim extraction failed: 403 Your API key was reported as leaked. Please use another API key.
+07:26:09 | INFO    | routers.verify            | 🔍 Step 3: Searching knowledge sources...
+/Users/demo/Downloads/Truth Layer/backend/services/source_aggregator.py:52: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  ddgs = DDGS()
+07:26:09 | INFO    | primp                     | response: https://www.bing.com/search?q=Overnight+curling+methods+are+a+great 200
+07:26:09 | WARNING | services.source_aggregator | DuckDuckGo default backend returned 0 results. Falling back to HTML backend.
+07:26:10 | INFO    | primp                     | response: https://www.bing.com/search?q=Overnight+curling+methods+are+a+great 200
+07:26:10 | INFO    | services.source_aggregator | 🔍 DuckDuckGo: found 0 results
+07:26:11 | INFO    | httpx                     | HTTP Request: GET https://factchecktools.googleapis.com/v1alpha1/claims:search?query=Overnight+curling+methods+are+a+great+way+to+achieve+natural-looking+curls+without+using+heat+styling+tools.&pageSize=5 "HTTP/1.1 403 Forbidden"
+07:26:11 | INFO    | services.source_aggregator | ✅ Fact Check API: found 0 results
+07:26:11 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=Overnight+curling+methods+are+a+great+way+to+achieve+natural-looking+curls+without+using+heat+styling+tools.&format=json&srlimit=3 "HTTP/1.1 200 OK"
+07:26:12 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/api/rest_v1/page/summary/Overnight "HTTP/1.1 200 OK"
+07:26:12 | INFO    | services.source_aggregator | 📚 Wikipedia: found 2 results
+07:26:12 | INFO    | services.source_aggregator | 📊 Total raw evidence gathered: 2 from all sources
+07:26:12 | INFO    | routers.verify            | 🔬 Step 4: Analyzing evidence stance...
+07:26:12 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 47.134844303s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 47
+}
+]
+07:26:13 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 403 Your API key was reported as leaked. Please use another API key.
+07:26:13 | INFO    | services.evidence_analyzer | 🔬 Analyzed 2 evidence items
+07:26:13 | INFO    | routers.verify            | ⚖️ Step 5: Calculating consensus score...
+07:26:13 | INFO    | services.consensus        | ⚖️ Consensus: score=0.500, confidence=0.200, classification=Uncertain (S:0 C:0 N:2)
+07:26:13 | INFO    | routers.verify            | 💾 Stored verification 4674b205 in database
+07:26:13 | INFO    | routers.verify            | ✅ Verification complete: Uncertain (score=0.500, confidence=0.200)
+INFO:     127.0.0.1:57756 - "POST /api/verify HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'services/source_aggregator.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+07:27:51 | INFO    | trustlayer                | 👋 TrustLayer API shut down
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1432]
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/api_core/_python_version_support.py:246: FutureWarning: You are using a non-supported Python version (3.9.6). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/Users/demo/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+INFO:     Started server process [9577]
+INFO:     Waiting for application startup.
+07:27:52 | INFO    | trustlayer                | 🚀 Starting TrustLayer API...
+07:27:52 | INFO    | trustlayer                | ✅ Database initialized
+07:27:52 | WARNING | services.cache            | ⚠️ Redis unavailable (Error 61 connecting to localhost:6379. Connection refused.), using fallback in-memory cache
+07:27:52 | INFO    | trustlayer                | ✅ Cache connected
+07:27:52 | INFO    | trustlayer                | ============================================================
+07:27:52 | INFO    | trustlayer                |    TrustLayer API is ready!
+07:27:52 | INFO    | trustlayer                |    Docs: http://localhost:8000/docs
+07:27:52 | INFO    | trustlayer                | ============================================================
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'services/source_aggregator.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+07:27:56 | INFO    | trustlayer                | 👋 TrustLayer API shut down
+INFO:     Application shutdown complete.
+INFO:     Finished server process [9577]
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/api_core/_python_version_support.py:246: FutureWarning: You are using a non-supported Python version (3.9.6). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/Users/demo/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+INFO:     Started server process [9613]
+INFO:     Waiting for application startup.
+07:27:57 | INFO    | trustlayer                | 🚀 Starting TrustLayer API...
+07:27:57 | INFO    | trustlayer                | ✅ Database initialized
+07:27:57 | WARNING | services.cache            | ⚠️ Redis unavailable (Error 61 connecting to localhost:6379. Connection refused.), using fallback in-memory cache
+07:27:57 | INFO    | trustlayer                | ✅ Cache connected
+07:27:57 | INFO    | trustlayer                | ============================================================
+07:27:57 | INFO    | trustlayer                |    TrustLayer API is ready!
+07:27:57 | INFO    | trustlayer                |    Docs: http://localhost:8000/docs
+07:27:57 | INFO    | trustlayer                | ============================================================
+INFO:     Application startup complete.
+07:28:03 | INFO    | routers.verify            | 🚀 Verification request: '“Our water-soaked world, teeming with life and unique in the universe as far as ...'
+07:28:03 | INFO    | routers.verify            | 🧠 Step 2: Extracting claims...
+07:28:04 | ERROR   | services.claim_extractor  | Gemini claim extraction failed: 403 Your API key was reported as leaked. Please use another API key.
+07:28:04 | INFO    | routers.verify            | 🔍 Step 3: Searching knowledge sources...
+/Users/demo/Downloads/Truth Layer/backend/services/source_aggregator.py:53: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  ddgs = DDGS()
+07:28:04 | INFO    | primp                     | response: https://www.bing.com/search?q=Our+watersoaked+world+teeming+with 200
+07:28:04 | WARNING | services.source_aggregator | DuckDuckGo default backend returned 0 results. Falling back to HTML backend.
+07:28:05 | INFO    | primp                     | response: https://www.bing.com/search?q=Our+watersoaked+world+teeming+with 200
+07:28:05 | INFO    | services.source_aggregator | 🔍 DuckDuckGo: found 0 results
+07:28:05 | INFO    | httpx                     | HTTP Request: GET https://factchecktools.googleapis.com/v1alpha1/claims:search?query=%E2%80%9COur+water-soaked+world%2C+teeming+with+life+and+unique+in+the+universe+as+far+as+we+know%2C+is+something+of+a+mystery%E2%80%94we%E2%80%99re+not+sure+how+all+this+water+got+here.%E2%80%9D&pageSize=5 "HTTP/1.1 403 Forbidden"
+07:28:05 | INFO    | services.source_aggregator | ✅ Fact Check API: found 0 results
+07:28:06 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=Our+watersoaked+world+teeming+with+life+and+unique&format=json&srlimit=3 "HTTP/1.1 200 OK"
+07:28:06 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/api/rest_v1/page/summary/Our "HTTP/1.1 200 OK"
+07:28:06 | INFO    | services.source_aggregator | 📚 Wikipedia: found 1 results
+07:28:06 | INFO    | services.source_aggregator | 📊 Total raw evidence gathered: 1 from all sources
+07:28:06 | INFO    | routers.verify            | 🔬 Step 4: Analyzing evidence stance...
+07:28:07 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 52.763242916s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 52
+}
+]
+07:28:07 | INFO    | services.evidence_analyzer | 🔬 Analyzed 1 evidence items
+07:28:07 | INFO    | routers.verify            | ⚖️ Step 5: Calculating consensus score...
+07:28:07 | INFO    | services.consensus        | ⚖️ Consensus: score=0.500, confidence=0.100, classification=Uncertain (S:0 C:0 N:1)
+07:28:07 | INFO    | routers.verify            | 💾 Stored verification eff7fe67 in database
+07:28:07 | INFO    | routers.verify            | ✅ Verification complete: Uncertain (score=0.500, confidence=0.100)
+INFO:     127.0.0.1:57795 - "POST /api/verify HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'services/source_aggregator.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+07:28:15 | INFO    | trustlayer                | 👋 TrustLayer API shut down
+INFO:     Application shutdown complete.
+INFO:     Finished server process [9613]
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/api_core/_python_version_support.py:246: FutureWarning: You are using a non-supported Python version (3.9.6). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/Users/demo/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+INFO:     Started server process [10187]
+INFO:     Waiting for application startup.
+07:28:16 | INFO    | trustlayer                | 🚀 Starting TrustLayer API...
+07:28:16 | INFO    | trustlayer                | ✅ Database initialized
+07:28:16 | WARNING | services.cache            | ⚠️ Redis unavailable (Error 61 connecting to localhost:6379. Connection refused.), using fallback in-memory cache
+07:28:16 | INFO    | trustlayer                | ✅ Cache connected
+07:28:16 | INFO    | trustlayer                | ============================================================
+07:28:16 | INFO    | trustlayer                |    TrustLayer API is ready!
+07:28:16 | INFO    | trustlayer                |    Docs: http://localhost:8000/docs
+07:28:16 | INFO    | trustlayer                | ============================================================
+INFO:     Application startup complete.
+07:28:22 | INFO    | routers.verify            | 🚀 Verification request: 'Photosynthesis is the process used by plants to convert light energy into chemic...'
+07:28:22 | INFO    | routers.verify            | 🧠 Step 2: Extracting claims...
+07:28:23 | ERROR   | services.claim_extractor  | Gemini claim extraction failed: 403 Your API key was reported as leaked. Please use another API key.
+07:28:23 | INFO    | routers.verify            | 🔍 Step 3: Searching knowledge sources...
+/Users/demo/Downloads/Truth Layer/backend/services/source_aggregator.py:53: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  ddgs = DDGS()
+07:28:23 | INFO    | primp                     | response: https://www.bing.com/search?q=Photosynthesis+is+the+process+used 200
+07:28:23 | WARNING | services.source_aggregator | DuckDuckGo default backend returned 0 results. Falling back to HTML backend.
+07:28:24 | INFO    | primp                     | response: https://www.bing.com/search?q=Photosynthesis+is+the+process+used 200
+07:28:24 | INFO    | services.source_aggregator | 🔍 DuckDuckGo: found 0 results
+07:28:24 | INFO    | httpx                     | HTTP Request: GET https://factchecktools.googleapis.com/v1alpha1/claims:search?query=Photosynthesis+is+the+process+used+by+plants+to+convert+light+energy+into+chemical+energy.&pageSize=5 "HTTP/1.1 403 Forbidden"
+07:28:24 | INFO    | services.source_aggregator | ✅ Fact Check API: found 0 results
+07:28:25 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=Photosynthesis+is+the+process+used+by+plants+to+convert+light+energy+into+chemical+energy.&format=json&srlimit=3 "HTTP/1.1 200 OK"
+07:28:26 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/api/rest_v1/page/summary/photosynthesis "HTTP/1.1 200 OK"
+07:28:26 | INFO    | services.source_aggregator | 📚 Wikipedia: found 4 results
+07:28:26 | INFO    | services.source_aggregator | 📊 Total raw evidence gathered: 4 from all sources
+07:28:26 | INFO    | routers.verify            | 🔬 Step 4: Analyzing evidence stance...
+07:28:26 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 33.422597978s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 33
+}
+]
+07:28:27 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 403 Your API key was reported as leaked. Please use another API key.
+07:28:27 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 32.180727747s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 32
+}
+]
+07:28:28 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 403 Your API key was reported as leaked. Please use another API key.
+07:28:28 | INFO    | services.evidence_analyzer | 🔬 Analyzed 4 evidence items
+07:28:28 | INFO    | routers.verify            | ⚖️ Step 5: Calculating consensus score...
+07:28:28 | INFO    | services.consensus        | ⚖️ Consensus: score=1.000, confidence=0.800, classification=Verified (S:4 C:0 N:0)
+07:28:28 | INFO    | routers.verify            | 💾 Stored verification 216f7a71 in database
+07:28:28 | INFO    | routers.verify            | ✅ Verification complete: Verified (score=1.000, confidence=0.800)
+INFO:     127.0.0.1:57812 - "POST /api/verify HTTP/1.1" 200 OK
+07:29:58 | INFO    | routers.verify            | 🚀 Verification request: 'As of early 2026, major government bans in India focus on environmental protecti...'
+07:29:58 | INFO    | routers.verify            | 🧠 Step 2: Extracting claims...
+07:29:59 | ERROR   | services.claim_extractor  | Gemini claim extraction failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 996.508967ms. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+}
+]
+07:29:59 | INFO    | routers.verify            | 🔍 Step 3: Searching knowledge sources...
+/Users/demo/Downloads/Truth Layer/backend/services/source_aggregator.py:53: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  ddgs = DDGS()
+07:29:59 | INFO    | primp                     | response: https://www.bing.com/search?q=As+of+early+2026+major 200
+07:29:59 | WARNING | services.source_aggregator | DuckDuckGo default backend returned 0 results. Falling back to HTML backend.
+07:30:00 | INFO    | primp                     | response: https://www.bing.com/search?q=As+of+early+2026+major 200
+07:30:00 | INFO    | services.source_aggregator | 🔍 DuckDuckGo: found 0 results
+07:30:00 | INFO    | httpx                     | HTTP Request: GET https://factchecktools.googleapis.com/v1alpha1/claims:search?query=As+of+early+2026%2C+major+government+bans+in+India+focus+on+environmental+protection%2C+public+health%2C+and+digital+safety%2C+including+single-use+plastics+%28%3C120+microns%29%2C+e-cigarettes%2C+over+100mg+nimesulide%2C+and+specific+obscene+OTT+platforms.&pageSize=5 "HTTP/1.1 403 Forbidden"
+07:30:00 | INFO    | services.source_aggregator | ✅ Fact Check API: found 0 results
+07:30:01 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=As+of+early+2026+major+government+bans+in&format=json&srlimit=3 "HTTP/1.1 200 OK"
+07:30:02 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/api/rest_v1/page/summary/early "HTTP/1.1 200 OK"
+07:30:02 | INFO    | services.source_aggregator | 📚 Wikipedia: found 4 results
+07:30:02 | INFO    | services.source_aggregator | 📊 Total raw evidence gathered: 4 from all sources
+07:30:02 | INFO    | routers.verify            | 🔬 Step 4: Analyzing evidence stance...
+07:30:02 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 403 Your API key was reported as leaked. Please use another API key.
+07:30:03 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 56.832865353s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 56
+}
+]
+07:30:03 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 403 Your API key was reported as leaked. Please use another API key.
+07:30:04 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 55.715438335s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 55
+}
+]
+07:30:04 | INFO    | services.evidence_analyzer | 🔬 Analyzed 4 evidence items
+07:30:04 | INFO    | routers.verify            | ⚖️ Step 5: Calculating consensus score...
+07:30:04 | INFO    | services.consensus        | ⚖️ Consensus: score=0.500, confidence=0.400, classification=Uncertain (S:0 C:0 N:4)
+07:30:04 | INFO    | routers.verify            | 💾 Stored verification d5668594 in database
+07:30:04 | INFO    | routers.verify            | ✅ Verification complete: Uncertain (score=0.500, confidence=0.400)
+INFO:     127.0.0.1:57845 - "POST /api/verify HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'services/evidence_analyzer.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+07:32:38 | INFO    | trustlayer                | 👋 TrustLayer API shut down
+INFO:     Application shutdown complete.
+INFO:     Finished server process [10187]
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/api_core/_python_version_support.py:246: FutureWarning: You are using a non-supported Python version (3.9.6). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/Users/demo/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/demo/Library/Python/3.9/lib/python/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+INFO:     Started server process [14494]
+INFO:     Waiting for application startup.
+07:32:39 | INFO    | trustlayer                | 🚀 Starting TrustLayer API...
+07:32:39 | INFO    | trustlayer                | ✅ Database initialized
+07:32:39 | WARNING | services.cache            | ⚠️ Redis unavailable (Error 61 connecting to localhost:6379. Connection refused.), using fallback in-memory cache
+07:32:39 | INFO    | trustlayer                | ✅ Cache connected
+07:32:39 | INFO    | trustlayer                | ============================================================
+07:32:39 | INFO    | trustlayer                |    TrustLayer API is ready!
+07:32:39 | INFO    | trustlayer                |    Docs: http://localhost:8000/docs
+07:32:39 | INFO    | trustlayer                | ============================================================
+INFO:     Application startup complete.
+07:35:36 | INFO    | routers.verify            | 🚀 Verification request: 'Overnight curling methods are a great way to achieve natural-looking curls witho...'
+07:35:36 | INFO    | routers.verify            | 🧠 Step 2: Extracting claims...
+07:35:36 | ERROR   | services.claim_extractor  | Gemini claim extraction failed: 403 Your API key was reported as leaked. Please use another API key.
+07:35:36 | INFO    | routers.verify            | 🔍 Step 3: Searching knowledge sources...
+/Users/demo/Downloads/Truth Layer/backend/services/source_aggregator.py:53: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  ddgs = DDGS()
+07:35:37 | INFO    | primp                     | response: https://www.bing.com/search?q=Overnight+curling+methods+are+a 200
+07:35:37 | WARNING | services.source_aggregator | DuckDuckGo default backend returned 0 results. Falling back to HTML backend.
+07:35:38 | INFO    | primp                     | response: https://www.bing.com/search?q=Overnight+curling+methods+are+a 200
+07:35:39 | INFO    | services.source_aggregator | 🔍 DuckDuckGo: found 0 results
+07:35:39 | INFO    | httpx                     | HTTP Request: GET https://factchecktools.googleapis.com/v1alpha1/claims:search?query=Overnight+curling+methods+are+a+great+way+to+achieve+natural-looking+curls+without+using+heat+styling+tools.&pageSize=5 "HTTP/1.1 403 Forbidden"
+07:35:39 | INFO    | services.source_aggregator | ✅ Fact Check API: found 0 results
+07:35:40 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=Overnight+curling+methods+are+a+great+way+to&format=json&srlimit=3 "HTTP/1.1 200 OK"
+07:35:40 | INFO    | httpx                     | HTTP Request: GET https://en.wikipedia.org/api/rest_v1/page/summary/overnight "HTTP/1.1 200 OK"
+07:35:40 | INFO    | services.source_aggregator | 📚 Wikipedia: found 4 results
+07:35:40 | INFO    | services.source_aggregator | 📊 Total raw evidence gathered: 4 from all sources
+07:35:40 | INFO    | routers.verify            | 🔬 Step 4: Analyzing evidence stance...
+07:35:41 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 18.951490087s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 18
+}
+]
+07:35:41 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 403 Your API key was reported as leaked. Please use another API key.
+07:35:42 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite
+Please retry in 17.717078482s. [links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-2.5-flash-lite"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 20
+}
+, retry_delay {
+  seconds: 17
+}
+]
+07:35:42 | WARNING | services.evidence_analyzer | Evidence analysis failed for Wikipedia: 403 Your API key was reported as leaked. Please use another API key.
+07:35:42 | INFO    | services.evidence_analyzer | 🔬 Analyzed 4 evidence items
+07:35:42 | INFO    | routers.verify            | ⚖️ Step 5: Calculating consensus score...
+07:35:42 | INFO    | services.consensus        | ⚖️ Consensus: score=0.500, confidence=0.400, classification=Uncertain (S:0 C:0 N:4)
+07:35:42 | INFO    | routers.verify            | 💾 Stored verification 6bd53e27 in database
+07:35:42 | INFO    | routers.verify            | ✅ Verification complete: Uncertain (score=0.500, confidence=0.400)
+INFO:     127.0.0.1:57903 - "POST /api/verify HTTP/1.1" 200 OK

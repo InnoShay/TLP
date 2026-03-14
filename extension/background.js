@@ -20,6 +20,12 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "trustlayer-verify" && info.selectionText) {
     console.log("TrustLayer: Verifying:", info.selectionText);
 
+    // Show loading state immediately
+    chrome.tabs.sendMessage(tab.id, {
+      action: "showLoading",
+      text: info.selectionText
+    });
+
     try {
       const result = await verifyText(info.selectionText, info.pageUrl);
 
@@ -33,6 +39,10 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       });
     } catch (error) {
       console.error("TrustLayer verification failed:", error);
+      chrome.tabs.sendMessage(tab.id, {
+        action: "showError",
+        error: error.message
+      });
     }
   }
 });

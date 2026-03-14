@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import re
 from typing import Optional
 
 import httpx
@@ -37,7 +38,16 @@ class RawEvidence:
 
 async def search_duckduckgo(claim: Claim, max_results: int = 5) -> list[RawEvidence]:
     """Search DuckDuckGo for evidence related to the claim."""
-    query = claim.original_text
+    # Construct an optimized search query
+    if claim.subject != "Unknown":
+        query = f"{claim.subject} {claim.predicate} {claim.object}"
+    else:
+        # Fallback: Truncate long paragraphs to 5 words without punctuation
+        # to prevent strict search engines from returning 0 results
+        clean_text = re.sub(r'[^a-zA-Z0-9\s]', '', claim.original_text)
+        words = clean_text.split()
+        query = " ".join(words[:5])
+        
     evidences = []
     try:
         ddgs = DDGS()
@@ -71,9 +81,18 @@ async def search_wikipedia(claim: Claim) -> list[RawEvidence]:
     evidences = []
     
     # Use original text for the search query, it's safer than extracted subject/object
-    search_query = claim.original_text
-    # Extract just the main nouns for the summary article lookup
-    article_lookup = claim.subject if claim.subject and claim.subject != "Unknown" else claim.original_text.split()[0]
+    # Clean it first to remove leading/trailing quotes and conversational filler
+    search_query = re.sub(r'^[“"\'\s]+|[”"\'\s]+$', '', claim.original_text)
+    if len(search_query) > 100:
+        clean_text = re.sub(r'[^a-zA-Z0-9\s]', '', search_query)
+        search_query = " ".join(clean_text.split()[:8])
+
+    # Stopwords to skip for direct article lookup
+    stopwords = {"the", "a", "an", "our", "is", "are", "was", "were", "in", "on", "at", "by", "for", "with", "about", "to", "this", "that", "it"}
+    
+    # Extract just the first significant noun/keyword for the summary article lookup
+    potential_keywords = [w for w in search_query.lower().split() if w not in stopwords and len(w) > 3]
+    article_lookup = potential_keywords[0] if potential_keywords else search_query.split()[0]
     
     try:
         headers = {"User-Agent": "TrustLayerMVP/1.0 (https://github.com/test/TLP; test@example.com) httpx/0.28.1"}

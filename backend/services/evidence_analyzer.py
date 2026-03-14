@@ -7,13 +7,11 @@ import re
 
 import google.generativeai as genai
 
-from config import GEMINI_API_KEY, GEMINI_MODEL, GEMINI_TEMPERATURE, SOURCE_WEIGHTS
+from config import GEMINI_MODEL, GEMINI_TEMPERATURE, SOURCE_WEIGHTS
 from models import Evidence, Stance, SourceType
 from services.source_aggregator import RawEvidence
 
 logger = logging.getLogger(__name__)
-
-genai.configure(api_key=GEMINI_API_KEY)
 
 
 STANCE_PROMPT = """You are an expert fact-checking analyzer. Given a CLAIM and a piece of EVIDENCE (which might be an excerpt from a web search), determine:
@@ -22,7 +20,7 @@ STANCE_PROMPT = """You are an expert fact-checking analyzer. Given a CLAIM and a
 2. relevance_score: How relevant is this evidence to the claim? (0.0 to 1.0)
 
 CRITICAL RULES:
-- "supports": The evidence explicitly confirms the claim is true factually. If an article describes people WHO believe the claim, or if it is an article debunking the claim, it does NOT support it. 
+- "supports": The evidence confirms the claim or contains facts that align with it. If the evidence states the claim as a fact, it supports it. However, if an article merely describes people WHO believe the claim, or is debunking the claim, it does NOT support it.
 - "contradicts": The evidence explicitly disputes, disproves, or debunks the claim. If it says scientists proved it wrong, or calls it a myth/conspiracy, it "contradicts".
 - "neutral": The evidence is related but doesn't take a definitive factual stance, or it merely mentions the claim exists.
 
@@ -51,13 +49,12 @@ async def analyze_evidence(
         return []
 
     analyzed = []
-    model = genai.GenerativeModel(GEMINI_MODEL)
-
+    
     # Batch evidence into groups to minimize API calls
     batch_size = 3
     for i in range(0, len(raw_evidences), batch_size):
         batch = raw_evidences[i : i + batch_size]
-        tasks = [_analyze_single(model, claim_text, ev) for ev in batch]
+        tasks = [_analyze_single(claim_text, ev) for ev in batch]
 
         # Process batch
         for task, raw_ev in zip(tasks, batch):
@@ -69,11 +66,17 @@ async def analyze_evidence(
     return analyzed
 
 
+from config import get_next_api_key, GEMINI_MODEL, GEMINI_TEMPERATURE, SOURCE_WEIGHTS
+
 async def _analyze_single(
-    model: genai.GenerativeModel, claim_text: str, raw: RawEvidence
+    claim_text: str, raw: RawEvidence
 ) -> Evidence | None:
     """Analyze a single piece of evidence against the claim."""
     try:
+        api_key = get_next_api_key()
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel(GEMINI_MODEL)
+        
         prompt = STANCE_PROMPT.format(
             claim_text=claim_text,
             source_name=raw.source_name,
@@ -124,23 +127,29 @@ async def _analyze_single(
         
         # Calculate scores
         contradict_score = sum(1 for kw in contradiction_keywords if kw in content_lower)
-        support_score = sum(1 for kw in support_keywords if kw in content_lower)
         
-        # Determine stance
+        # Determine stance using Word Overlap Ratio
+        claim_words = set([w for w in claim_lower.split() if len(w) > 3])
+        content_words = set([w for w in content_lower.replace(".", "").replace(",", "").split() if len(w) > 3])
+        
+        overlap_count = len(claim_words.intersection(content_words))
+        overlap_ratio = overlap_count / len(claim_words) if claim_words else 0.0
+        
         stance = Stance.NEUTRAL
-        relevance = 0.3 # Base relevance
+        relevance = 0.3 + min(overlap_ratio * 0.6, 0.6)
         
-        # Check if the core subject is even mentioned
-        subject_words = [w for w in claim_lower.split() if len(w) > 4]
-        if any(w in content_lower for w in subject_words):
-            relevance += 0.2
-            
-            if contradict_score > support_score:
+        if overlap_ratio > 0.15:
+            # Low to high overlap means the source is relevant
+            if contradict_score > 0:
                 stance = Stance.CONTRADICTS
-                relevance += min(contradict_score * 0.1, 0.4)
-            elif support_score > contradict_score:
+                relevance = 0.6 + (overlap_ratio * 0.4)
+            elif overlap_ratio > 0.3:
                 stance = Stance.SUPPORTS
-                relevance += min(support_score * 0.1, 0.4)
+                relevance = 0.7 + (overlap_ratio * 0.3)
+            else:
+                # Partial support/mention
+                stance = Stance.SUPPORTS
+                relevance = 0.5 + (overlap_ratio * 0.5)
 
         weight = SOURCE_WEIGHTS.get(raw.source_type.value, 0.30)
         return Evidence(

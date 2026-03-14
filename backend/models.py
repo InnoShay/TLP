@@ -30,6 +30,7 @@ class Classification(str, Enum):
     UNCERTAIN = "Uncertain"
     LIKELY_FALSE = "Likely False"
     FALSE = "False"
+    NOT_VERIFIABLE = "Not Verifiable"
 
 
 class SourceType(str, Enum):

@@ -1,15 +1,8 @@
-import asyncio
 from duckduckgo_search import DDGS
-import logging
+query = "Many of the records and files belong to Epstein's estate, which is run by lawyer Darren Indyke and accountan"
+with DDGS() as ddgs:
+    results = ddgs.text(query[:100], max_results=3, backend="lite")
+    print("RESULTS LITE:", len(results))
 
-def search():
-    try:
-        with DDGS() as ddgs:
-            # use html backend instead of default (which uses bing now)
-            results = [r for r in ddgs.text("The Earth is flat", max_results=3, backend="html")]
-            print("RESULTS:", results)
-    except Exception as e:
-        print("ERROR:", e)
-
-if __name__ == "__main__":
-    search()
+    results_api = ddgs.text(query[:100], max_results=3, backend="api")
+    print("RESULTS API:", len(results_api))

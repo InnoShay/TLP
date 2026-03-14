@@ -7,13 +7,9 @@ from typing import Optional
 
 import google.generativeai as genai
 
-from config import GEMINI_API_KEY, GEMINI_MODEL, GEMINI_TEMPERATURE
 from models import Claim, ClaimType
 
 logger = logging.getLogger(__name__)
-
-# Configure Gemini
-genai.configure(api_key=GEMINI_API_KEY)
 
 
 EXTRACTION_PROMPT = """You are a factual claim extraction engine. Analyze the given text and extract all verifiable factual claims.
@@ -30,14 +26,14 @@ ONLY extract claims that are factual and verifiable. Skip opinions, questions, a
 
 Return a JSON array of claims. Example:
 [
-  {
+  {{
     "subject": "India",
     "predicate": "banned",
     "object": "single-use plastics",
     "temporal": "2022",
     "original_text": "India banned single-use plastics in 2022",
     "claim_type": "factual"
-  }
+  }}
 ]
 
 If no verifiable claims found, return an empty array: []
@@ -50,6 +46,8 @@ TEXT TO ANALYZE:
 Return ONLY the JSON array, no other text."""
 
 
+from config import get_next_api_key, GEMINI_MODEL, GEMINI_TEMPERATURE
+
 async def extract_claims(text: str) -> list[Claim]:
     """Extract structured factual claims from input text using Gemini.
     
@@ -60,6 +58,8 @@ async def extract_claims(text: str) -> list[Claim]:
         List of structured Claim objects.
     """
     try:
+        api_key = get_next_api_key()
+        genai.configure(api_key=api_key)
         model = genai.GenerativeModel(GEMINI_MODEL)
         
         response = model.generate_content(
@@ -67,6 +67,7 @@ async def extract_claims(text: str) -> list[Claim]:
             generation_config=genai.types.GenerationConfig(
                 temperature=GEMINI_TEMPERATURE,
                 max_output_tokens=2048,
+                response_mime_type="application/json"
             ),
         )
 
@@ -102,24 +103,14 @@ async def extract_claims(text: str) -> list[Claim]:
 
     except Exception as e:
         logger.error(f"Gemini claim extraction failed: {e}")
-        return _fallback_extract(text)
-
-
-def _fallback_extract(text: str) -> list[Claim]:
-    """Simple regex-based fallback if Gemini is unavailable."""
-    sentences = re.split(r'[.!?]+', text)
-    claims = []
-    for s in sentences:
-        s = s.strip()
-        if len(s) > 15 and not s.endswith("?"):
-            claims.append(
-                Claim(
-                    subject="Unknown",
-                    predicate="states",
-                    object=s[:100],
-                    temporal=None,
-                    original_text=s,
-                    claim_type=ClaimType.FACTUAL,
-                )
-            )
-    return claims[:5]  # Max 5 claims
+        # FALLBACK: If API keys are leaked or rate-limited, create a generic claim 
+        # so the pipeline continues to source aggregation using offline mode.
+        fallback_claim = Claim(
+            subject="Unknown",
+            predicate="states",
+            object="something",
+            temporal=None,
+            original_text=text,
+            claim_type=ClaimType.FACTUAL
+        )
+        return [fallback_claim]
