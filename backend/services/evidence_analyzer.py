@@ -128,28 +128,38 @@ async def _analyze_single(
         # Calculate scores
         contradict_score = sum(1 for kw in contradiction_keywords if kw in content_lower)
         
-        # Determine stance using Word Overlap Ratio
-        claim_words = set([w for w in claim_lower.split() if len(w) > 3])
-        content_words = set([w for w in content_lower.replace(".", "").replace(",", "").split() if len(w) > 3])
+        # Determine stance using Fuzzy Word Overlap
+        claim_words = set([w.strip(".,!?;:\"'") for w in claim_lower.split() if len(w) > 3])
+        content_words = set([w.strip(".,!?;:\"'") for w in content_lower.split() if len(w) > 3])
         
         overlap_count = len(claim_words.intersection(content_words))
         overlap_ratio = overlap_count / len(claim_words) if claim_words else 0.0
         
-        stance = Stance.NEUTRAL
-        relevance = 0.3 + min(overlap_ratio * 0.6, 0.6)
-        
-        if overlap_ratio > 0.15:
-            # Low to high overlap means the source is relevant
+        # Heuristic scoring tiers
+        if overlap_ratio > 0.4:
+            # High confidence support unless contradicted
             if contradict_score > 0:
                 stance = Stance.CONTRADICTS
-                relevance = 0.6 + (overlap_ratio * 0.4)
-            elif overlap_ratio > 0.3:
-                stance = Stance.SUPPORTS
-                relevance = 0.7 + (overlap_ratio * 0.3)
+                relevance = 0.85
             else:
-                # Partial support/mention
                 stance = Stance.SUPPORTS
-                relevance = 0.5 + (overlap_ratio * 0.5)
+                relevance = 0.90
+        elif overlap_ratio > 0.2:
+            # Medium confidence support
+            if contradict_score > 0:
+                stance = Stance.CONTRADICTS
+                relevance = 0.65
+            else:
+                stance = Stance.SUPPORTS
+                relevance = 0.75
+        elif overlap_ratio > 0.05:
+            # Low confidence/Partial mention
+            stance = Stance.SUPPORTS
+            relevance = 0.45
+        else:
+            # Likely just mentions a common word
+            stance = Stance.NEUTRAL
+            relevance = 0.30
 
         weight = SOURCE_WEIGHTS.get(raw.source_type.value, 0.30)
         return Evidence(
