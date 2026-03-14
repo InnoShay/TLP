@@ -38,33 +38,38 @@ class RawEvidence:
 
 async def search_duckduckgo(claim: Claim, max_results: int = 5) -> list[RawEvidence]:
     """Search DuckDuckGo for evidence related to the claim."""
-    # Construct an optimized search query
+    # Construct an optimized search query with English constraint
     if claim.subject != "Unknown":
-        query = f"{claim.subject} {claim.predicate} {claim.object}"
+        query = f"{claim.subject} {claim.predicate} {claim.object} lang:en"
     else:
         # Fallback: Truncate long paragraphs to 5 words without punctuation
         # to prevent strict search engines from returning 0 results
         clean_text = re.sub(r'[^a-zA-Z0-9\s]', '', claim.original_text)
         words = clean_text.split()
-        query = " ".join(words[:5])
+        query = " ".join(words[:5]) + " lang:en"
         
     evidences = []
     try:
         ddgs = DDGS()
-        # Try default backend (Bing wrapper)
-        results = ddgs.text(query, max_results=max_results)
+        # Try default backend (Bing wrapper) with English region
+        results = ddgs.text(query, max_results=max_results, region="en-us")
         
         # If Bing wrapper is blocked (returns []), fallback to HTML backend
         if not results:
             logger.warning("DuckDuckGo default backend returned 0 results. Falling back to HTML backend.")
-            results = ddgs.text(query, max_results=max_results, backend="html")
+            results = ddgs.text(query, max_results=max_results, backend="html", region="en-us")
             
         for r in results:
+            content = f"{r.get('title', '')}. {r.get('body', '')}"
+            # STRICT FILTER: Only allow mostly English content
+            if not _is_mostly_english(content):
+                continue
+
             evidences.append(
                 RawEvidence(
                     source_name=_extract_domain(r.get("href", "")),
                     source_type=_classify_source(r.get("href", "")),
-                    content=f"{r.get('title', '')}. {r.get('body', '')}",
+                    content=content,
                     url=r.get("href"),
                 )
             )
@@ -72,6 +77,17 @@ async def search_duckduckgo(claim: Claim, max_results: int = 5) -> list[RawEvide
     except Exception as e:
         logger.error(f"DuckDuckGo search failed: {e}")
     return evidences
+
+
+def _is_mostly_english(text: str) -> bool:
+    """Detect if the text is mostly English by checking character distributions (blocks CJK)."""
+    if not text:
+        return False
+    # Check for CJK (Chinese, Japanese, Korean) characters
+    cjk_count = sum(1 for c in text if '\u4e00' <= c <= '\u9fff' or '\u3040' <= c <= '\u30ff' or '\uac00' <= c <= '\ud7af')
+    if cjk_count > 0: # Strict: any CJK character marks it as non-English for this tool
+        return False
+    return True
 
 
 # ── Wikipedia API (Free, No API Key) ──
