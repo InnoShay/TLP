@@ -16,16 +16,15 @@ logger = logging.getLogger(__name__)
 genai.configure(api_key=GEMINI_API_KEY)
 
 
-STANCE_PROMPT = """You are a fact-checking evidence analyzer. Given a CLAIM and a piece of EVIDENCE, determine:
+STANCE_PROMPT = """You are an expert fact-checking analyzer. Given a CLAIM and a piece of EVIDENCE (which might be an excerpt from a web search), determine:
 
 1. stance: Does the evidence "supports", "contradicts", or is "neutral" about the claim?
 2. relevance_score: How relevant is this evidence to the claim? (0.0 to 1.0)
 
-Rules:
-- "supports" means the evidence confirms or agrees with the claim
-- "contradicts" means the evidence disputes or disproves the claim
-- "neutral" means the evidence is related but doesn't clearly support or contradict
-- Be precise and objective in your analysis
+CRITICAL RULES:
+- "supports": The evidence explicitly confirms the claim is true factually. If an article describes people WHO believe the claim, or if it is an article debunking the claim, it does NOT support it. 
+- "contradicts": The evidence explicitly disputes, disproves, or debunks the claim. If it says scientists proved it wrong, or calls it a myth/conspiracy, it "contradicts".
+- "neutral": The evidence is related but doesn't take a definitive factual stance, or it merely mentions the claim exists.
 
 CLAIM: "{claim_text}"
 

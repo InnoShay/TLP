@@ -7,10 +7,10 @@ load_dotenv()
 
 
 # ── API Keys ──
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyA6GPv2mjsTO5AP1cyhzHjH8uzNV_4GYmw")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAusMi0wOKRj5XesnUrXwB0ByFItbpY-s8")
 
 # ── Gemini Model Settings ──
-GEMINI_MODEL = "gemini-2.0-flash-lite"
+GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_TEMPERATURE = 0.2  # Low temperature for factual tasks
 
 # ── Redis Settings ──
