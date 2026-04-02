@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrustLayer</title>
+    <title>Credify - TLP</title>
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -11,10 +11,10 @@
         <!-- ── Header ── -->
         <div class="header">
             <div class="logo-row">
-                <div class="logo">⚖️</div>
-                <div>
-                    <h1>TrustLayer</h1>
-                    <p class="tagline">Truth Verification Protocol</p>
+                <img src="icons/icon48.png" alt="Credify logo" class="logo">
+                <div class="header-text">
+                    <h1>Credify</h1>
+                    <p class="tagline">TLP — Trust Layer Protocol</p>
                 </div>
             </div>
         </div>
@@ -23,77 +23,64 @@
         <div class="input-section">
             <textarea id="claim-input" placeholder="Paste or type a claim to verify..." rows="3"></textarea>
             <button id="verify-btn" class="btn-verify">
-                <span class="btn-text">🔍 Verify Claim</span>
+                <span class="btn-text">Verify Claim</span>
                 <span class="btn-loading" style="display:none;">
-                    <span class="spinner"></span> Analyzing...
+                    Analyzing...
                 </span>
             </button>
         </div>
 
         <!-- ── Result Section (hidden initially) ── -->
         <div id="result-section" class="result-section" style="display:none;">
+            
+            <!-- Analyzed Claim -->
+            <div class="claim-display">
+                <div class="claim-text" id="analyzed-claim">"..."</div>
+            </div>
 
-            <!-- Truth Score Gauge -->
+            <!-- Main Result Card -->
             <div class="score-card">
-                <div class="score-gauge">
-                    <svg viewBox="0 0 120 120" class="gauge-svg">
-                        <circle cx="60" cy="60" r="52" class="gauge-bg" />
-                        <circle cx="60" cy="60" r="52" class="gauge-fill" id="gauge-fill"
-                                stroke-dasharray="327" stroke-dashoffset="327" />
-                    </svg>
-                    <div class="score-value" id="score-value">0%</div>
+                <div class="score-header">
+                    <span class="score-label">Credibility Score</span>
+                    <span class="score-value" id="score-value">0%</span>
                 </div>
-                <div class="score-info">
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="score-bar"></div>
+                </div>
+
+                <div class="score-footer">
                     <div class="classification-badge" id="classification-badge">Analyzing</div>
-                    <div class="confidence-row">
-                        <span class="confidence-label">Confidence</span>
-                        <div class="confidence-bar">
-                            <div class="confidence-fill" id="confidence-fill"></div>
-                        </div>
+                    <div class="confidence-info">
+                        <span class="confidence-label">Confidence:</span>
                         <span class="confidence-value" id="confidence-value">0%</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Evidence Stats -->
-            <div class="stats-row">
-                <div class="stat stat-support">
-                    <span class="stat-icon">✅</span>
-                    <span class="stat-count" id="support-count">0</span>
-                    <span class="stat-label">Support</span>
-                </div>
-                <div class="stat stat-contradict">
-                    <span class="stat-icon">❌</span>
-                    <span class="stat-count" id="contradict-count">0</span>
-                    <span class="stat-label">Contradict</span>
-                </div>
-                <div class="stat stat-neutral">
-                    <span class="stat-icon">➖</span>
-                    <span class="stat-count" id="neutral-count">0</span>
-                    <span class="stat-label">Neutral</span>
+            <!-- Evidence Breakdown -->
+            <div class="evidence-summary">
+                <h3 class="section-title">Sources Checked</h3>
+                <div class="source-list" id="evidence-list">
+                    <!-- Source items injected here -->
                 </div>
             </div>
 
-            <!-- Evidence Cards -->
-            <div class="evidence-section">
-                <div class="evidence-header-row">
-                    <h3 class="evidence-title">📚 Source Evidence</h3>
-                    <button id="toggle-sidebar" class="btn-sidebar">View Sources</button>
-                </div>
-                <div id="evidence-list" class="evidence-list"></div>
+            <!-- Actions -->
+            <div class="actions">
+                <button id="toggle-sidebar" class="btn-secondary">View Details</button>
             </div>
         </div>
 
         <!-- ── Error Section ── -->
         <div id="error-section" class="error-section" style="display:none;">
-            <div class="error-icon">⚠️</div>
-            <div class="error-message" id="error-message">Something went wrong</div>
-            <button class="btn-retry" id="retry-btn">Retry</button>
+            <div class="error-message" id="error-message">Verification failed.</div>
+            <button class="btn-secondary" id="retry-btn">Retry</button>
         </div>
 
         <!-- ── Footer ── -->
         <div class="footer">
-            <span>Powered by Multi-Source Consensus</span>
+            Credify analyzes claims using trusted sources
         </div>
     </div>
 
@@ -101,11 +88,14 @@
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
-            <h2>Detailed Sources</h2>
+            <div class="sidebar-branding">
+                <img src="icons/icon16.png" alt="Credify logo" class="sidebar-logo">
+                <h2>Credify</h2>
+            </div>
             <button id="close-sidebar" class="btn-close">✕</button>
         </div>
         <div class="sidebar-content" id="sidebar-content">
-            <!-- Source links will be injected here -->
+            <!-- Source links injected here -->
         </div>
     </div>
 

@@ -91,13 +91,40 @@ class VerificationResponse(BaseModel):
     classification: Classification = Field(...)
     confidence: float = Field(...)
     evidences: list[Evidence] = Field(default_factory=list, description="Retrieved evidence")
+    reasoning: str = Field(default="Analysis in progress", description="Summary of evidence and decision")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 
 class HistoryItem(BaseModel):
     """A past verification for the history endpoint."""
-    claim_id: str
     original_text: str
     truth_score: float
     classification: Classification
     timestamp: datetime
+
+
+class UserSignup(BaseModel):
+    email: str = Field(..., description="User's email address")
+    password: str = Field(..., min_length=8, description="User's password")
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+class ApiKeyResponse(BaseModel):
+    id: str
+    name: str
+    key: str
+    created_at: datetime
+    usage: int = Field(default=0)
+
+class ApiLogResponse(BaseModel):
+    timestamp: datetime
+    claim: str
+    status: str
+    score: float
+    latency: int

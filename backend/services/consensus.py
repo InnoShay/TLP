@@ -60,13 +60,25 @@ def calculate_consensus(evidences: list[Evidence]) -> TruthScore:
         else:
             neutral += 1
 
-    # Calculate truth score
-    score = weighted_sum / weight_total if weight_total > 0 else 0.5
+    # Calculate base truth score
+    base_score = weighted_sum / weight_total if weight_total > 0 else 0.5
+    
+    # CREDIBILITY CEILING: The max score is limited by the average weight of supporting sources
+    # If sources are just Wikipedia (0.7), the ceiling is around 0.92
+    if supporting > 0:
+        avg_support_weight = sum(ev.weight for ev in evidences if ev.stance == Stance.SUPPORTS) / supporting
+        ceiling = 0.85 + (avg_support_weight * 0.12)
+        score = min(base_score, ceiling)
+    else:
+        score = base_score
+
+    # UNCERTAINTY MARGIN: Deduct a small constant to avoid perfect 100%
+    score = score * 0.98
 
     # Calculate confidence
     evidence_count = len(evidences)
     evidence_factor = min(evidence_count / 5.0, 1.0)  # More evidence = higher confidence
-
+    
     # Agreement ratio — how much do sources agree?
     total_opinionated = supporting + contradicting
     if total_opinionated > 0:
@@ -74,7 +86,7 @@ def calculate_consensus(evidences: list[Evidence]) -> TruthScore:
     else:
         agreement_ratio = 0.5
 
-    confidence = evidence_factor * agreement_ratio
+    confidence = (evidence_factor * agreement_ratio) * 0.95
 
     # Classify the result
     classification = _classify(score)

@@ -1,5 +1,5 @@
 /**
- * TrustLayer Background Service Worker
+ * Credify-TLP Background Service Worker
  * Handles context menu and API communication.
  */
 
@@ -8,17 +8,17 @@ const API_BASE = "http://localhost:8000";
 // ── Create context menu on install ──
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
-    id: "trustlayer-verify",
-    title: "🔍 Verify with TrustLayer",
+    id: "credify-verify",
+    title: "🔍 Verify with Credify",
     contexts: ["selection"],
   });
-  console.log("TrustLayer: Context menu created");
+  console.log("Credify: Context menu created");
 });
 
 // ── Handle context menu click ──
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId === "trustlayer-verify" && info.selectionText) {
-    console.log("TrustLayer: Verifying:", info.selectionText);
+  if (info.menuItemId === "credify-verify" && info.selectionText) {
+    console.log("Credify: Verifying:", info.selectionText);
 
     // Show loading state immediately
     chrome.tabs.sendMessage(tab.id, {
@@ -38,7 +38,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         result: result,
       });
     } catch (error) {
-      console.error("TrustLayer verification failed:", error);
+      console.error("Credify verification failed:", error);
       chrome.tabs.sendMessage(tab.id, {
         action: "showError",
         error: error.message

@@ -15,6 +15,12 @@ __pycache__/
 # Database
 trustlayer.db
 *.sqlite3
+**/*.db
+**/*.sqlite
+
+# Logs
+*.log
+backend/backend.log
 
 # OS generated files
 .DS_Store

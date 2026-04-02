@@ -1,5 +1,5 @@
 /**
- * TrustLayer Popup Logic
+ * Credify-TLP Popup Logic
  * Handles verification flow, UI updates, and result rendering.
  */
 
@@ -74,7 +74,7 @@ async function handleVerify() {
     displayResult(result);
   } catch (error) {
     console.error("Verification failed:", error);
-    showError(error.message || "Cannot reach TrustLayer server. Is the backend running?");
+    showError(error.message || "Cannot reach Credify server. Is the backend running?");
   } finally {
     setLoading(false);
   }
@@ -89,12 +89,13 @@ function displayResult(result) {
   const confidence = Math.round(result.confidence * 100);
   const classification = result.classification;
 
-  // ── Update Score Gauge ──
-  const circumference = 2 * Math.PI * 52; // 327
-  const offset = circumference - (score / 100) * circumference;
-  const gaugeFill = document.getElementById("gauge-fill");
-  gaugeFill.style.strokeDashoffset = offset;
-  gaugeFill.style.stroke = getScoreColor(classification);
+  // ── Update Claim Display ──
+  document.getElementById("analyzed-claim").textContent = `"${claimInput.value.trim()}"`;
+
+  // ── Update Horizontal Score Bar ──
+  const scoreBar = document.getElementById("score-bar");
+  scoreBar.style.width = `${score}%`;
+  scoreBar.style.backgroundColor = getScoreColor(classification);
 
   // Animate score counter
   animateCounter("score-value", score, "%");
@@ -102,47 +103,60 @@ function displayResult(result) {
   // ── Classification Badge ──
   const badge = document.getElementById("classification-badge");
   const classMap = {
-    "Verified": { text: "✅ Verified", class: "verified" },
-    "Likely True": { text: "🔵 Likely True", class: "likely-true" },
-    "Uncertain": { text: "🟡 Uncertain", class: "uncertain" },
-    "Likely False": { text: "🟠 Likely False", class: "likely-false" },
-    "False": { text: "🔴 False", class: "false" },
+    "Verified": { text: "Verified", class: "verified" },
+    "Likely True": { text: "Likely True", class: "likely-true" },
+    "Uncertain": { text: "Uncertain", class: "uncertain" },
+    "Likely False": { text: "Likely False", class: "likely-false" },
+    "False": { text: "False", class: "false" },
   };
   const config = classMap[classification] || classMap["Uncertain"];
   badge.textContent = config.text;
   badge.className = `classification-badge ${config.class}`;
 
   // ── Confidence Bar ──
-  document.getElementById("confidence-fill").style.width = `${confidence}%`;
   document.getElementById("confidence-value").textContent = `${confidence}%`;
 
-  // ── Stats ──
+  // ── Source List (Popup View) ──
   const evidences = result.evidences || [];
-  const supporting = evidences.filter((e) => e.stance === "supports").length;
-  const contradicting = evidences.filter((e) => e.stance === "contradicts").length;
-  const neutral = evidences.filter((e) => e.stance === "neutral").length;
-
-  document.getElementById("support-count").textContent = supporting;
-  document.getElementById("contradict-count").textContent = contradicting;
-  document.getElementById("neutral-count").textContent = neutral;
-
-  // ── Evidence Cards ──
   const evidenceList = document.getElementById("evidence-list");
   evidenceList.innerHTML = "";
 
-  evidences.forEach((ev) => {
-    const card = document.createElement("div");
-    card.className = `evidence-card ${ev.stance}`;
-    card.innerHTML = `
-      <div class="evidence-header">
-        <span class="evidence-source">${escapeHtml(ev.source_name)}</span>
-        <span class="evidence-stance ${ev.stance}">${ev.stance}</span>
-      </div>
-      <div class="evidence-content">${escapeHtml(ev.content)}</div>
-      ${ev.url ? `<a href="${ev.url}" target="_blank" class="evidence-url">${ev.url}</a>` : ""}
-    `;
-    evidenceList.appendChild(card);
-  });
+  if (evidences.length === 0) {
+    evidenceList.innerHTML = `<div style="font-size: 13px; color: var(--slate-500); padding: 8px 0;">No verified sources found.</div>`;
+  } else {
+    // Show top 3 in popup
+    evidences.slice(0, 3).forEach((ev) => {
+      const isSupport = ev.stance === "supports";
+      const isContradict = ev.stance === "contradicts";
+      
+      let icon = "➖";
+      if (isSupport) icon = "✅";
+      if (isContradict) icon = "❌";
+
+      const weightLabel = ev.weight > 0.8 ? "High Auth" : ev.weight > 0.5 ? "Med Auth" : "Low Auth";
+
+      const item = document.createElement("div");
+      item.className = "source-item";
+      item.innerHTML = `
+        <div class="source-name">
+          <span class="source-icon">${icon}</span>
+          ${escapeHtml(ev.source_name)}
+        </div>
+        <div class="source-weight">${weightLabel}</div>
+      `;
+      evidenceList.appendChild(item);
+    });
+    
+    if (evidences.length > 3) {
+      const more = document.createElement("div");
+      more.style.fontSize = "11px";
+      more.style.color = "var(--slate-500)";
+      more.style.paddingTop = "8px";
+      more.style.textAlign = "center";
+      more.textContent = `+${evidences.length - 3} more sources...`;
+      evidenceList.appendChild(more);
+    }
+  }
 }
 
 // ── Helpers ──
@@ -221,20 +235,47 @@ displayResult = function(result) {
     sidebarContent.innerHTML = "";
     const evidences = result.evidences || [];
     
+    // Technical Transparency Section
+    const transparency = document.createElement("div");
+    transparency.style.fontSize = "11px";
+    transparency.style.color = "var(--slate-500)";
+    transparency.style.marginBottom = "24px";
+    transparency.style.lineHeight = "1.5";
+    transparency.innerHTML = "Based on strict cross-source consensus analysis.<br>Confidence is derived from weighted source reliability.";
+    sidebarContent.appendChild(transparency);
+
     if (evidences.length === 0) {
-        sidebarContent.innerHTML = "<p style='color: #9ca3af; font-size: 12px; text-align: center; margin-top: 20px;'>No sources found.</p>";
+        sidebarContent.innerHTML += "<p style='color: var(--slate-500); font-size: 13px; text-align: center; margin-top: 20px;'>No sources found to populate analysis.</p>";
         return;
     }
 
+    // Add Reason section
+    const isFalse = result.classification === "False" || result.classification === "Likely False";
+    const reasonHeader = document.createElement("h3");
+    reasonHeader.style.fontSize = "13px";
+    reasonHeader.style.fontWeight = "600";
+    reasonHeader.style.color = "var(--slate-900)";
+    reasonHeader.style.marginBottom = "12px";
+    reasonHeader.textContent = "Source Analysis Breakdown";
+    sidebarContent.appendChild(reasonHeader);
+
     evidences.forEach((ev) => {
-        if (!ev.url) return; // Only show sources with URLs in the sidebar
-        
         const card = document.createElement("div");
-        card.className = "sidebar-source-card";
+        card.className = "analysis-card";
+        
+        let linkHtml = ev.url ? `<a href="${ev.url}" target="_blank" class="analysis-link">View Source →</a>` : "";
+        let stanceTag = ev.stance.charAt(0).toUpperCase() + ev.stance.slice(1);
+
         card.innerHTML = `
-            <div class="sidebar-source-name">${escapeHtml(ev.source_name)}</div>
-            <div class="sidebar-source-type">${ev.source_type.replace('_', ' ')}</div>
-            <a href="${ev.url}" target="_blank" class="sidebar-link">Open Original Source ↗</a>
+            <div class="analysis-source">
+                <span>${escapeHtml(ev.source_name)}</span>
+                <span class="analysis-tag ${ev.stance}">${stanceTag}</span>
+            </div>
+            <div style="font-size: 11px; color: var(--slate-400); margin-bottom: 8px; text-transform: uppercase;">
+                ${ev.source_type.replace('_', ' ')}
+            </div>
+            <div class="analysis-snippet">"${escapeHtml(ev.content)}"</div>
+            ${linkHtml}
         `;
         sidebarContent.appendChild(card);
     });

@@ -36,44 +36,44 @@ class RawEvidence:
 
 # ── DuckDuckGo Search (Free, No API Key) ──
 
-async def search_duckduckgo(claim: Claim, max_results: int = 5) -> list[RawEvidence]:
-    """Search DuckDuckGo for evidence related to the claim."""
-    # Construct an optimized search query with English constraint
-    if claim.subject != "Unknown":
-        query = f"{claim.subject} {claim.predicate} {claim.object} lang:en"
-    else:
-        # Fallback: Truncate long paragraphs to 5 words without punctuation
-        # to prevent strict search engines from returning 0 results
-        clean_text = re.sub(r'[^a-zA-Z0-9\s]', '', claim.original_text)
-        words = clean_text.split()
-        query = " ".join(words[:5]) + " lang:en"
-        
+async def search_duckduckgo(claim: Claim, max_results: int = 10) -> list[RawEvidence]:
+    """Search DuckDuckGo for evidence related to the claim (Combined Text + News)."""
+    clean_text = re.sub(r'[^a-zA-Z0-9\s]', '', claim.original_text)
+    words = clean_text.split()
+    query = " ".join(words[:8])
+    
     evidences = []
     try:
         ddgs = DDGS()
-        # Try default backend (Bing wrapper) with English region
-        results = ddgs.text(query, max_results=max_results, region="en-us")
-        
-        # If Bing wrapper is blocked (returns []), fallback to HTML backend
-        if not results:
-            logger.warning("DuckDuckGo default backend returned 0 results. Falling back to HTML backend.")
-            results = ddgs.text(query, max_results=max_results, backend="html", region="en-us")
-            
-        for r in results:
+        # 1. Fetch News Results (Usually works better in this environment)
+        news_results = ddgs.news(query, max_results=max_results // 2, region="en-us")
+        for r in news_results:
             content = f"{r.get('title', '')}. {r.get('body', '')}"
-            # STRICT FILTER: Only allow mostly English content
-            if not _is_mostly_english(content):
-                continue
-
-            evidences.append(
-                RawEvidence(
-                    source_name=_extract_domain(r.get("href", "")),
-                    source_type=_classify_source(r.get("href", "")),
-                    content=content,
-                    url=r.get("href"),
+            if _is_mostly_english(content):
+                evidences.append(
+                    RawEvidence(
+                        source_name=r.get("source", _extract_domain(r.get("url", ""))),
+                        source_type=_classify_source(r.get("url", "")),
+                        content=content,
+                        url=r.get("url"),
+                    )
                 )
-            )
-        logger.info(f"🔍 DuckDuckGo: found {len(evidences)} results")
+
+        # 2. Fetch Text Results (Fallback/Companion)
+        text_results = ddgs.text(query, max_results=max_results // 2, region="en-us")
+        for r in text_results:
+            content = f"{r.get('title', '')}. {r.get('body', '')}"
+            if _is_mostly_english(content):
+                evidences.append(
+                    RawEvidence(
+                        source_name=_extract_domain(r.get("href", "")),
+                        source_type=_classify_source(r.get("href", "")),
+                        content=content,
+                        url=r.get("href"),
+                    )
+                )
+        
+        logger.info(f"🔍 DuckDuckGo (News+Text): found {len(evidences)} results")
     except Exception as e:
         logger.error(f"DuckDuckGo search failed: {e}")
     return evidences
@@ -194,6 +194,7 @@ async def search_factcheck(claim: Claim) -> list[RawEvidence]:
 
 async def search_all_sources(claim: Claim) -> list[RawEvidence]:
     """Query all knowledge sources in parallel and aggregate results."""
+    # Retrieve sources in parallel
     results = await asyncio.gather(
         search_duckduckgo(claim),
         search_wikipedia(claim),
@@ -202,11 +203,16 @@ async def search_all_sources(claim: Claim) -> list[RawEvidence]:
     )
 
     all_evidence = []
-    for result in results:
-        if isinstance(result, list):
-            all_evidence.extend(result)
-        elif isinstance(result, Exception):
-            logger.error(f"Source query failed: {result}")
+    # 1. Start with the diverse DDG results and Fact Checks
+    if isinstance(results[0], list):
+        all_evidence.extend(results[0])
+    if isinstance(results[2], list):
+        all_evidence.extend(results[2])
+    
+    # 2. Add capped Wikipedia results (max 2) for variety
+    if isinstance(results[1], list):
+        wiki_results = results[1][:2]
+        all_evidence.extend(wiki_results)
 
     logger.info(f"📊 Total raw evidence gathered: {len(all_evidence)} from all sources")
     return all_evidence
@@ -234,17 +240,23 @@ def _classify_source(url: str) -> SourceType:
         return SourceType.GOVERNMENT
 
     news_domains = ["reuters.", "apnews.", "bbc.", "nytimes.", "washingtonpost.",
-                    "theguardian.", "aljazeera.", "cnn.", "ndtv.", "thehindu."]
+                    "theguardian.", "aljazeera.", "cnn.", "ndtv.", "thehindu.",
+                    "bloomberg.", "wsj.", "economist.", "theatlantic.", "newyorker.",
+                    "forbes.", "fortune.", "time.com", "usatoday.", "abcnews.",
+                    "cbsnews.", "nbcnews.", "foxnews.", "dw.com", "france24."]
     if any(d in url_lower for d in news_domains):
         return SourceType.NEWS_AGENCY
 
     science_indicators = ["nature.com", "science.org", "pubmed", "arxiv.",
-                          "springer.", "wiley.", "sciencedirect.", "scholar.google"]
+                          "springer.", "wiley.", "sciencedirect.", "scholar.google",
+                          "thelancet.", "cell.com", "nejm.org", "ama-assn.org",
+                          "pnas.org", "scientificamerican.", "newscientist.",
+                          "nationalgeographic.", "smithsonianmag."]
     if any(ind in url_lower for ind in science_indicators):
         return SourceType.SCIENTIFIC_JOURNAL
 
     factcheck_indicators = ["factcheck", "snopes.", "politifact.", "fullfact.",
-                            "altnews.", "boomlive."]
+                            "altnews.", "boomlive.", "logicalindian.", "reuters.com/fact-check"]
     if any(ind in url_lower for ind in factcheck_indicators):
         return SourceType.FACT_CHECK
 

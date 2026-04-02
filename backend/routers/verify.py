@@ -2,14 +2,18 @@
 
 import logging
 import uuid
+import time
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Security, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from typing import Optional, List
+from sqlalchemy import select, update
+from sqlalchemy.orm import selectinload
 
-from database import get_session, ClaimRecord, VerificationRecord, EvidenceRecord
-from models import VerifyRequest, VerificationResponse, HistoryItem, Classification
+from database import get_session, ClaimRecord, VerificationRecord, EvidenceRecord, ApiKey, ApiLog
+from models import VerifyRequest, VerificationResponse, HistoryItem, Classification, Stance
 from services.cache import cache
 from services.claim_extractor import extract_claims
 from services.source_aggregator import search_all_sources
@@ -18,10 +22,30 @@ from services.consensus import calculate_consensus
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["verification"])
+security = HTTPBearer()
+
+async def get_optional_api_key(
+    request: Request,
+    session: AsyncSession = Depends(get_session)
+) -> Optional[ApiKey]:
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return None
+    
+    token = auth_header.replace("Bearer ", "")
+    try:
+        result = await session.execute(select(ApiKey).where(ApiKey.key == token, ApiKey.is_active == True))
+        return result.scalar_one_or_none()
+    except Exception:
+        return None
 
 
 @router.post("/verify", response_model=VerificationResponse)
-async def verify_claim(request: VerifyRequest, session: AsyncSession = Depends(get_session)):
+async def verify_claim(
+    request: VerifyRequest, 
+    api_key: Optional[ApiKey] = Depends(get_optional_api_key),
+    session: AsyncSession = Depends(get_session)
+):
     """Full verification pipeline: Extract → Search → Analyze → Score → Store.
     
     This endpoint orchestrates the complete TrustLayer pipeline:
@@ -33,12 +57,36 @@ async def verify_claim(request: VerifyRequest, session: AsyncSession = Depends(g
     6. Store results in database + cache
     7. Return verification response
     """
-    logger.info(f"🚀 Verification request: '{request.text[:80]}...'")
+    start_time = time.time()
+    key_name = api_key.name if api_key else "Internal/Extension"
+    logger.info(f"🚀 Verification request: '{request.text[:80]}...' using Key: {key_name}")
+
+    async def save_api_log(status_class, score):
+        if not api_key:
+            return
+        try:
+            latency_ms = int((time.time() - start_time) * 1000)
+            api_log = ApiLog(
+                id=str(uuid.uuid4()),
+                api_key_id=api_key.id,
+                endpoint="/api/verify",
+                request_payload=request.text[:100] if request.text else "",
+                response_status=status_class,
+                score=score,
+                latency=latency_ms
+            )
+            session.add(api_log)
+            # Commit log (usage is calculated dynamically in auth.py by counting logs)
+            await session.commit()
+        except Exception as e:
+            logger.error(f"Failed to save API log: {e}")
+            await session.rollback()
 
     # ── Step 1: Check cache ──
     cached = await cache.get(request.text)
     if cached:
         logger.info("⚡ Returning cached result")
+        await save_api_log(cached.get("classification"), cached.get("truth_score"))
         return VerificationResponse(**cached)
 
     # ── Step 2: Extract claims using Gemini ──
@@ -56,8 +104,10 @@ async def verify_claim(request: VerifyRequest, session: AsyncSession = Depends(g
             classification=Classification.NOT_VERIFIABLE,
             confidence=0.0,
             evidences=[],
+            reasoning="No verifiable factual claims were detected in the provided text.",
             timestamp=datetime.utcnow(),
         )
+        await save_api_log(Classification.NOT_VERIFIABLE.value, 0.0)
         return response
 
     # ── Step 3: Search knowledge sources (parallel) ──
@@ -80,8 +130,10 @@ async def verify_claim(request: VerifyRequest, session: AsyncSession = Depends(g
             classification=Classification.NOT_VERIFIABLE,
             confidence=0.0,
             evidences=[],
+            reasoning="Searched multiple sources but could not find verifiable evidence to confirm or deny this claim.",
             timestamp=datetime.utcnow(),
         )
+        await save_api_log(Classification.NOT_VERIFIABLE.value, 0.0)
         return response
 
     # ── Step 5: Calculate consensus score ──
@@ -90,6 +142,19 @@ async def verify_claim(request: VerifyRequest, session: AsyncSession = Depends(g
 
     # ── Step 6: Build response ──
     claim_id = str(uuid.uuid4())[:8]
+    
+    # Generate reasoning summary
+    support_count = len([e for e in analyzed_evidences if e.stance == Stance.SUPPORTS])
+    contradict_count = len([e for e in analyzed_evidences if e.stance == Stance.CONTRADICTS])
+    
+    reasoning = f"Analysis based on {len(analyzed_evidences)} sources. "
+    if support_count > contradict_count:
+        reasoning += f"Strong consensus found among {support_count} sources confirming the claim."
+    elif contradict_count > support_count:
+        reasoning += f"Consensus found among {contradict_count} sources contradicting the claim."
+    else:
+        reasoning += "Evidence is mixed or inconclusive across checked sources."
+
     response = VerificationResponse(
         claim_id=claim_id,
         original_text=request.text,
@@ -98,6 +163,7 @@ async def verify_claim(request: VerifyRequest, session: AsyncSession = Depends(g
         classification=truth_score.classification,
         confidence=truth_score.confidence,
         evidences=analyzed_evidences,
+        reasoning=reasoning,
         timestamp=datetime.utcnow(),
     )
 
@@ -151,6 +217,8 @@ async def verify_claim(request: VerifyRequest, session: AsyncSession = Depends(g
         f"✅ Verification complete: {truth_score.classification.value} "
         f"(score={truth_score.score:.3f}, confidence={truth_score.confidence:.3f})"
     )
+
+    await save_api_log(truth_score.classification.value, truth_score.score)
 
     return response
 

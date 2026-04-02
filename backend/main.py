@@ -10,6 +10,7 @@ from config import CORS_ORIGINS, BACKEND_PORT
 from database import init_db
 from services.cache import cache
 from routers.verify import router as verify_router
+from routers.auth import router as auth_router
 
 # ── Logging Setup ──
 logging.basicConfig(
@@ -56,6 +57,7 @@ app.add_middleware(
 )
 
 # ── Mount Routers ──
+app.include_router(auth_router)
 app.include_router(verify_router)
 
 

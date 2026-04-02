@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credify Developer Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Auth Overlay -->
+    <section id="view-auth" class="auth-view" style="display: flex;">
+        <div class="auth-card card">
+            <div class="card-header text-center">
+                <h2 id="auth-title">Login</h2>
+                <p class="text-sm mt-1 text-slate-500">Sign in to manage your Credify infrastructure.</p>
+            </div>
+            <div class="card-body">
+                <form id="auth-form">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="auth-email" class="form-input" placeholder="dev@credify.dev" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="auth-password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full mt-2" id="auth-submit-btn">Login</button>
+                </form>
+                <div class="mt-4 text-center">
+                    <button class="btn btn-text text-sm w-full font-medium" id="auth-mode-toggle" style="color:var(--primary); background: transparent; cursor:pointer; padding: 4px;">Need an account? Register</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main App Container -->
+    <div class="app-container" id="app" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-box">C</div>
+                <div class="logo-text">
+                    <h2>Credify</h2>
+                    <span>Developer Platform</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <!-- Overview Removed -->
+                <a href="#apikeys" class="nav-link" data-target="apikeys">API Keys</a>
+                <a href="#playground" class="nav-link" data-target="playground">Playground</a>
+                <a href="#logs" class="nav-link" data-target="logs">Logs</a>
+                <a href="#analytics" class="nav-link" data-target="analytics">Analytics</a>
+                <a href="#docs" class="nav-link" data-target="docs">Documentation</a>
+                <div class="nav-divider"></div>
+                <a href="#settings" class="nav-link" data-target="settings">Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">U</div>
+                    <div class="user-details">
+                        <span class="user-name" id="user-email-display">Developer User</span>
+                        <span class="user-email">dev@credify.dev <button id="btn-logout" class="btn btn-sm btn-text" style="padding:0;font-size:12px;color:var(--error);" onclick="logout()">[Logout]</button></span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar (Minimal) -->
+            <header class="topbar">
+                <h1 id="page-title">API Keys</h1>
+                <div class="topbar-actions">
+                    <button class="btn btn-secondary">Support</button>
+                    <button class="btn btn-secondary">Docs</button>
+                </div>
+            </header>
+
+            <!-- Views Container -->
+            <div class="views-container">
+                
+                <!-- 2. API Keys View -->
+                <section id="view-apikeys" class="view active">
+                    <div class="page-intro">
+                        <p>Generate and manage API keys to authenticate requests to the Credify infrastructure. Keep your keys secure.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header flex-between">
+                            <h2>Active API Keys</h2>
+                            <button class="btn btn-primary" id="btn-generate-key">Generate New Key</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>NAME</th>
+                                        <th>KEY</th>
+                                        <th>CREATED</th>
+                                        <th>USAGE</th>
+                                        <th class="text-right">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="api-keys-tbody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. Playground View -->
+                <section id="view-playground" class="view">
+                    <div class="page-intro">
+                        <p>Test the verification engine in real-time. Use an active API key to simulate requests.</p>
+                    </div>
+                    
+                    <div class="playground-layout">
+                        <!-- Request Panel -->
+                        <div class="playground-panel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2>Verification Request</h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Select API Key</label>
+                                        <select class="form-input" id="pg-api-key"></select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Claim Text</label>
+                                        <textarea class="form-input" id="pg-claim" rows="4" placeholder="e.g. India banned EV vehicles in 2025"></textarea>
+                                    </div>
+                                    <button class="btn btn-primary w-full" id="btn-analyze-claim">Analyze Claim</button>
+                                </div>
+                            </div>
+
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h2>Request Details (cURL)</h2>
+                                </div>
+                                <div class="card-body code-block">
+<pre><code>curl -X POST https://api.credify.dev/v1/verify \
+  -H "Authorization: Bearer <span id="pg-curl-key">YOUR_API_KEY</span>" \
+  -H "Content-Type: application/json" \
+  -d '{"claim": "<span id="pg-curl-claim">...</span>"}'</code></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Response Panel -->
+                        <div class="playground-panel">
+                            <div class="card h-full">
+                                <div class="card-header">
+                                    <h2>Response Output</h2>
+                                </div>
+                                <div class="card-body bg-slate-50 relative h-full-inner">
+                                    <div id="pg-loading" class="pg-loading" style="display: none;">
+                                        <div class="spinner"></div>
+                                        <span>Analyzing claim against trusted sources...</span>
+                                    </div>
+                                    
+                                    <div id="pg-response" class="pg-response" style="display: none;">
+                                        <!-- Score Header -->
+                                        <div class="resp-header">
+                                            <div class="resp-score-box">
+                                                <span class="resp-score-label">Credibility Score</span>
+                                                <span class="resp-score-val" id="resp-score">0.00</span>
+                                            </div>
+                                            <div class="resp-status" id="resp-status">Unknown</div>
+                                        </div>
+                                        
+                                        <!-- Reasoning -->
+                                        <div class="resp-section">
+                                            <h4>Reasoning</h4>
+                                            <p id="resp-reason">...</p>
+                                        </div>
+
+                                        <!-- Sources -->
+                                        <div class="resp-section">
+                                            <h4>Verified Sources</h4>
+                                            <ul id="resp-sources" class="resp-source-list">
+                                                <!-- Injected via JS -->
+                                            </ul>
+                                        </div>
+                                        
+                                        <!-- Raw JSON -->
+                                        <div class="resp-section mt-auto">
+                                            <h4>Raw JSON Response</h4>
+                                            <div class="code-block json-block">
+                                                <pre><code id="resp-json">{}</code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="pg-empty" class="pg-empty">
+                                        Submit a claim to view credibility analysis.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Logs View -->
+                <section id="view-logs" class="view">
+                    <div class="page-intro">
+                        <p>Real-time stream of all API requests made across your active keys.</p>
+                    </div>
+                    <div class="card">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>TIMESTAMP</th>
+                                        <th>CLAIM SNIPPET</th>
+                                        <th>CREDIBILITY</th>
+                                        <th>SCORE</th>
+                                        <th class="text-right">LATENCY</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logs-tbody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. Analytics View -->
+                <section id="view-analytics" class="view">
+                    <div class="page-intro">
+                        <p>Analyze verification volume and performance metrics over time.</p>
+                    </div>
+                    
+                    <div class="stats-grid mb-4">
+                        <div class="stat-card">
+                            <h3 class="stat-title">Requests (30d)</h3>
+                            <div class="stat-value">1,248</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3 class="stat-title">Error Rate</h3>
+                            <div class="stat-value">0.00%</div>
+                        </div>
+                    </div>
+
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h2>Usage by API Key</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>KEY NAME</th>
+                                            <th>TOTAL REQUESTS</th>
+                                            <th>LAST USED</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="analytics-keys-tbody">
+                                        <!-- Injected via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. Documentation View -->
+                <section id="view-docs" class="view">
+                    <div class="docs-layout">
+                        <div class="docs-sidebar">
+                            <ul class="docs-nav">
+                                <li><strong>Getting Started</strong></li>
+                                <li class="active">Authentication</li>
+                                <li>Errors</li>
+                                <li><strong>Verification API</strong></li>
+                                <li>Verify Claim</li>
+                                <li>Response Objects</li>
+                            </ul>
+                        </div>
+                        <div class="docs-content">
+                            <div class="docs-section">
+                                <h1>Credify Verification API</h1>
+                                <p class="docs-lead">The Credify API allows you to programmatically verify claims against an enterprise-grade consensus network of trusted sources.</p>
+                                
+                                <hr class="docs-hr">
+                                
+                                <h2>Authentication</h2>
+                                <p>Authenticate your account by including your secret API key in the authorization header of your requests.</p>
+                                <div class="code-block no-bg mb-4">
+                                    <pre><code>Authorization: Bearer sk_live_...</code></pre>
+                                </div>
+                                <div class="docs-callout">
+                                    <strong>Keep your keys safe</strong>
+                                    <p>Your secret API keys carry many privileges. Do not share them publicly or commit them to version control.</p>
+                                </div>
+
+                                <hr class="docs-hr">
+
+                                <h2>Verify a Claim</h2>
+                                <p>Analyzes a text string and returns a probabilistic truth score alongside source citations.</p>
+                                
+                                <h3>HTTP Request</h3>
+                                <div class="code-block mb-4">
+                                    <pre><code>POST https://api.credify.dev/v1/verify</code></pre>
+                                </div>
+
+                                <h3>Parameters</h3>
+                                <table class="docs-table mb-4">
+                                    <tr>
+                                        <td><strong>claim</strong> <span class="badge-req">required</span><br><span class="text-sm">string</span></td>
+                                        <td>The text statement to be analyzed. Max length 2000 characters.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>strict_mode</strong> <span class="badge-opt">optional</span><br><span class="text-sm">boolean</span></td>
+                                        <td>If true, returns "Uncertain" if fewer than 3 high-authority sources are found. Default: false.</td>
+                                    </tr>
+                                </table>
+
+                                <h3>Response Schema</h3>
+                                <div class="code-block mb-4">
+                                    <pre><code>{
+  "id": "veri_9a8b7c6d5e4f3g2h1",
+  "object": "verification",
+  "claim": "India banned EV vehicles in 2025",
+  "score": 0.21,
+  "status": "Likely False",
+  "confidence": 0.94,
+  "sources": [
+    {
+      "name": "Reuters",
+      "stance": "contradicts",
+      "url": "https://reuters.com/..."
+    }
+  ],
+  "reasoning": "Multiple trusted sources contradict the claim."
+}</code></pre>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7. Settings View (Placeholder) -->
+                <section id="view-settings" class="view">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Organization Settings</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group max-w-md">
+                                <label>Organization Name</label>
+                                <input type="text" class="form-input" value="Acme Corp Developers">
+                            </div>
+                            <div class="form-group max-w-md">
+                                <label>Admin Email</label>
+                                <input type="email" class="form-input" value="dev@credify.dev">
+                            </div>
+                            <button class="btn btn-primary mt-4">Save Changes</button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal for API Key Generation -->
+    <div id="key-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Generate New Key</h2>
+                <button class="btn-icon" id="btn-close-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Key Name</label>
+                    <input type="text" class="form-input" id="new-key-name" placeholder="e.g. Production API Key">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-cancel-modal">Cancel</button>
+                <button class="btn btn-primary" id="btn-create-key">Create Key</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

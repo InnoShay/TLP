@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, String, Text
+from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, String, Text, Boolean, Integer
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker
 
@@ -66,6 +66,45 @@ class EvidenceRecord(Base):
 
     verification = relationship("VerificationRecord", back_populates="evidences")
 
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(String, primary_key=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    api_keys = relationship("ApiKey", back_populates="user")
+
+
+class ApiKey(Base):
+    __tablename__ = "api_keys"
+
+    id = Column(String, primary_key=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    key = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    user = relationship("User", back_populates="api_keys")
+    logs = relationship("ApiLog", back_populates="api_key")
+
+
+class ApiLog(Base):
+    __tablename__ = "api_logs"
+
+    id = Column(String, primary_key=True)
+    api_key_id = Column(String, ForeignKey("api_keys.id"), nullable=False)
+    endpoint = Column(String, nullable=False)
+    request_payload = Column(Text, nullable=True) # E.g., claim snippet
+    response_status = Column(String, nullable=True) # Verified, Likely False, etc.
+    score = Column(Float, nullable=True)
+    latency = Column(Integer, nullable=False) # latency in ms
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    api_key = relationship("ApiKey", back_populates="logs")
 
 # ── Database Initialization ──
 
