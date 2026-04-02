@@ -1,103 +1,123 @@
-# ⚖️ Truth Layer Protocol (TLP)
-### The Infrastructure for a Verifiable Internet
+# ⚖️ Creadify: Trust Layer Protocol (TLP)
+### *Redefining Digital Integrity in the Age of Synthetic Content*
 
-[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
-[![GenAI](https://img.shields.io/badge/AI-Google_Gemini-4285F4?style=flat-square&logo=google)](https://deepmind.google/technologies/gemini/)
-[![Extension](https://img.shields.io/badge/Browser-Extension-FFCA28?style=flat-square&logo=google-chrome)](https://developer.chrome.com/docs/extensions/)
-[![Database](https://img.shields.io/badge/DB-SQLite-003B57?style=flat-square&logo=sqlite)](https://sqlite.org)
+[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
+[![GenAI](https://img.shields.io/badge/Intelligence-Google_Gemini-4285F4?style=for-the-badge&logo=google)](https://deepmind.google/technologies/gemini/)
+[![Extension](https://img.shields.io/badge/Vitals-Chrome_V3-FFCA28?style=for-the-badge&logo=google-chrome)](https://developer.chrome.com/docs/extensions/)
+[![Architecture](https://img.shields.io/badge/Design-Enterprise_HLD-6366F1?style=for-the-badge&logo=diagrams.net)](https://github.com/InnoShay/TLP)
 
-**Truth Layer Protocol (TLP)** is a decentralizable infrastructure designed to restore trust in digital information. In an era of AI-generated misinformation and deepfakes, TLP provides a real-time, automated verification layer that extracts factual claims, cross-references them against an aggregated knowledge base, and assigns a weighted "Truth Score" using multi-source consensus.
-
----
-
-## 👁️ The Vision
-TLP isn't just a fact-checker; it's the **Truth Operating System**. Our mission is to integrate verification into every interface where information is consumed—from social media feeds to news articles—enabling users to distinguish between verified facts and speculative narratives instantly.
+**Creadify** is an industrial-strength infrastructure designed to solve the "Post-Truth" crisis. By providing a real-time, algorithmic verification layer (TLP) between human consumption and digital distribution, Creadify acts as a firewall for misinformation. It doesn't just guess; it analyzes, cross-references, and proves.
 
 ---
 
-## 🏗️ Architecture
-The protocol consists of three core components orchestrating a seamless verification lifecycle:
+## 💎 The Mission
+In a world saturated with AI-generated illusions, **Creadify** aims to provide a universal "Blue Tick" for every verifiable claim on the internet. We are building the source-of-truth layer for the modern web—empowering individuals and institutions with the tools to verify, not just trust.
+
+---
+
+## 🏛️ High-Level Design (HLD)
+The **Creadify Ecosystem** is architected for modularity, high availability, and extreme analytical precision.
 
 ```mermaid
-graph TD
-    A[Browser Extension] -->|Select Text| B[FastAPI Gateway]
-    B -->|Pre-processing| C[Claim Extraction Engine]
-    C -->|Structured Claims| D[Source Aggregator]
-    D -->|Real-time Data| E[Evidence Analyzer]
-    E -->|Stance Detection| F[Consensus Scoring]
-    F -->|Truth Score| G[Result Persistence]
-    G -->|Response| A
-    style B fill:#f9f,stroke:#333,stroke-width:1px
-    style F fill:#00d5ff,stroke:#333,stroke-width:2px
+graph TB
+    subgraph "External Frontier"
+        EXT[Chrome Extension]
+        WEB[SPA Developer Platform]
+    end
+
+    subgraph "Core API Gateway (FastAPI)"
+        GAT[Load Balancer / Auth]
+        RAT[Rate Limiter]
+    end
+
+    subgraph "verification pipeline (Trust Layer Protocol)"
+        CEX[Claim Extractor - LLM]
+        AGG[Source Aggregator - Real-time]
+        ANA[Evidence Analyzer - Multi-Model]
+        CON[Consensus Scoring Engine]
+    end
+
+    subgraph "Persistence & Performance"
+        SQL[(SQLite Persistence)]
+        RED[(Redis Caching Layer)]
+    end
+
+    EXT -->|JSON/UTF-8 Request| GAT
+    GAT --> RAT
+    RAT -->|Secure Payloads| CEX
+    CEX -->|Knowledge URI Selection| AGG
+    AGG -->|Evidence Context| ANA
+    ANA -->|Weighted Vectors| CON
+    CON -->|Final Truth Vector| SQL
+    SQL --> GAT
+    RED <-.-> GAT
+    GAT -->|Verifiable Response| EXT
+
+    style GAT fill:#f8fafc,stroke:#64748b,stroke-width:2px
+    style CON fill:#4f46e5,stroke:#fff,stroke-width:3px,color:#fff
+    style CEX fill:#10b981,stroke:#fff,stroke-width:1px,color:#fff
 ```
 
-1. **The Extension**: A lightweight, intuitive Chrome extension that identifies claims on any webpage.
-2. **The Platform (SPA)**: A developer playground and dashboard to manage API keys, view analytics, and test the engine in real-time.
-3. **The Verify Engine**: A sophisticated Python backend leveraging Gemini LLM for high-accuracy claim extraction and evidence synthesis.
+### Protocol Components:
+*   **Intelligent Extraction (CEX)**: Uses Gemini's few-shot prompting to isolate factual atomic units from complex prose.
+*   **Dynamic Source Selection (AGG)**: A multi-threaded aggregator that selects the most authoritative knowledge bases (Reuters, Wikipedia, Government Archives) based on claim category.
+*   **Consensus Verification (CON)**: A proprietary mathematical model that weights sources by reliability, recency, and stance logic.
 
 ---
 
-## 🛠️ Core Technology Stack
-- **Engine**: FastAPI (Python 3.10+)
-- **Intelligence**: Google Gemini (NLP Extraction & Analysis)
-- **Database**: SQLAlchemy + SQLite (Persistence)
-- **Caching**: Redis (Performance Optimization)
-- **Frontend**: Vanilla JS, Modern CSS (Glassmorphism UI)
-- **Extension**: Chrome Manifest V3
+## 🚀 Future-Ready Capabilities
+- **[X] Semantic Verification**: Beyond keyword matching, Creadify understands context and nuance.
+- **[X] Evidence Traceability**: Every result is backed by clickable sources, providing total transparency.
+- **[X] Developer Empowerment**: Industry-standard API key management for enterprise integration.
+- **[ ] Decentralized Oracle Integration**: Future support for Chainlink and other verifiable data networks.
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Rapid Deployment
 
-### Prerequisites
-- Python 3.9+
-- Gemini API Key
-- Redis (Optional, for caching)
-
-### 1. Setup Backend
+### 1. Initialize Backend
 ```bash
+# Clone the protocol
 git clone https://github.com/InnoShay/TLP.git
 cd TLP/backend
+
+# Environment Setup
 pip install -r requirements.txt
-cp .env.example .env # Add your Gemini API Key
-python -m uvicorn main:app --reload
+cp .env.example .env # Add your High-Priority Gemini Key
+
+# Launch the Engine
+python -m uvicorn main:app --reload --port 8000
 ```
 
-### 2. Setup Platform
-The platform is a static SPA. Simply host it or open it:
+### 2. Launch Developer Dashboard
 ```bash
 cd ../platform
+# Serve with high-performance light-weight server
 python -m http.server 8080
 ```
-Open `http://localhost:8080` to access the developer dashboard.
 
-### 3. Load Extension
-1. Open Chrome and navigate to `chrome://extensions/`.
-2. Enable **Developer Mode**.
-3. Click "Load unpacked" and select the `extension/` directory.
-
----
-
-## ✨ Features
-- **Real-Time Fact Extraction**: Gemini-powered claim identification from raw text.
-- **Aggregated Evidence Search**: Queries multiple sources (News, Wikis, Journals) for consensus.
-- **Stance Classification**: Determines if a source *supports*, *contradicts*, or remains *neutral* toward a claim.
-- **Developer API**: Secure API keys and usage logging for integrating TLP into third-party apps.
-- **Analytics Dashboard**: Monitor verification trends and source reliability.
+### 3. Activate the Extension
+1. Go to `chrome://extensions/`
+2. Enable **Developer Mode**
+3. Select "Load unpacked" -> `TLP/extension/`
 
 ---
 
-## 🛣️ Roadmap
-- [ ] **TLP-SDK**: A JavaScript library for easy integration into web apps.
-- [ ] **Decentralized Reputation**: Use blockchain to track source credibility weight over time.
-- [ ] **Multi-Model Fusion**: Support for GPT-4 and Claude 3 alongside Gemini.
-- [ ] **Deepfake Image Detection**: Extending the protocol to visual media.
+## 🏆 Standout Features
+- **Deterministic Truth Scoring**: Moves away from binary T/F to a granular 0-100 credibility scale.
+- **Reasoning Summaries**: Don't just get a score—get a concise explanation of *why* the claim is flagged.
+- **Glassmorphism Design System**: A premium, enterprise-grade UI/UX that feels like a $1B SaaS product.
 
 ---
 
-## 📝 License
-Distributed under the MIT License. See `LICENSE` for more information.
+## 🤝 Contribution & Advocacy
+Creadify is a collaborative effort to save the digital realm. We welcome researchers, engineers, and visionaries.
 
 ---
 
-### Built with ❤️ for Case Western Reserve University & Global Information Integrity.
+### **Built with ❤️ by Synapse Innovators**
+*Engineering the future of digital certainty.*
+
+---
+
+© 2026 Creadify TLP. All Rights Reserved.
