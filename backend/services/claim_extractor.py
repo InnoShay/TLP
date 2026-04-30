@@ -12,7 +12,7 @@ from models import Claim, ClaimType
 logger = logging.getLogger(__name__)
 
 
-EXTRACTION_PROMPT = """You are a factual claim extraction engine. Analyze the given text and extract all verifiable factual claims.
+EXTRACTION_PROMPT = """You are a factual claim extraction engine. Analyze the given text and extract all verifiable factual claims. If the text is an instruction, method, or "how-to", extract the underlying verifiable claim (e.g., "Method X achieves result Y").
 
 For each claim, provide:
 - subject: The main entity or topic
@@ -22,7 +22,7 @@ For each claim, provide:
 - original_text: The exact text of the claim
 - claim_type: One of "factual", "statistical", "opinion", "prediction"
 
-ONLY extract claims that are factual and verifiable. Skip opinions, questions, and subjective statements.
+ONLY extract claims that are factual and verifiable. Skip pure opinions and subjective statements, but DO extract claims from instructional or method-based texts.
 
 Return a JSON array of claims. Example:
 [
