@@ -21,7 +21,7 @@ GEMINI_MODEL = "gemini-2.5-flash-lite"
 GEMINI_TEMPERATURE = 0.2  # Low temperature for factual tasks
 
 # ── Redis Settings ──
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+REDIS_URL = os.getenv("REDIS_URL", None)
 CACHE_TTL_SECONDS = 3600  # 1 hour
 
 # ── Source Credibility Weights ──

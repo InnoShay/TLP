@@ -21,6 +21,12 @@ class TrustLayerCache:
     async def connect(self):
         """Initialize Redis connection."""
         try:
+            if not REDIS_URL:
+                logger.info("ℹ️ No REDIS_URL provided, using in-memory fallback cache")
+                self._redis = None
+                self._fallback: dict[str, tuple[str, float]] = {}
+                return
+                
             self._redis = redis.from_url(REDIS_URL, decode_responses=True)
             await self._redis.ping()
             logger.info("✅ Redis connected successfully")
