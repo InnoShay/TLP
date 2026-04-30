@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Real-time internet truth verification by Credify. Highlight any text to verify its factual accuracy using multi-source consensus.",
   "permissions": ["activeTab", "storage", "contextMenus"],
-  "host_permissions": ["http://localhost:8000/*"],
+  "host_permissions": ["https://tlp-bvdp.onrender.com/*"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

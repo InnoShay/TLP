@@ -3,7 +3,7 @@
  * Handles context menu and API communication.
  */
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://tlp-bvdp.onrender.com";
 
 // ── Create context menu on install ──
 chrome.runtime.onInstalled.addListener(() => {

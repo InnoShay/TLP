@@ -3,7 +3,7 @@
  * Handles verification flow, UI updates, and result rendering.
  */
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://tlp-bvdp.onrender.com";
 
 // ── DOM Elements ──
 const claimInput = document.getElementById("claim-input");

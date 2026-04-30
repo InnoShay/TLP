@@ -3,7 +3,7 @@
  * Detects text selection on any webpage and communicates with the background worker.
  */
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://tlp-bvdp.onrender.com";
 
 // ── Listen for text selection ──
 document.addEventListener("mouseup", () => {
