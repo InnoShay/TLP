@@ -85,11 +85,19 @@
             </div>
         </aside>
 
+        <!-- Mobile Overlay -->
+        <div id="mobile-overlay" class="mobile-overlay"></div>
+
         <!-- Main Content -->
         <main class="main-content">
             <!-- Topbar -->
             <header class="topbar">
-                <h1 id="page-title">API Keys</h1>
+                <div style="display: flex; align-items: center;">
+                    <button id="mobile-menu-btn" class="mobile-menu-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <h1 id="page-title">API Keys</h1>
+                </div>
                 <div class="topbar-actions">
                     <a href="/docs" class="btn btn-secondary" style="text-decoration:none;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-right:6px;"><path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>

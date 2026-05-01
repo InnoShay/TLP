@@ -11,7 +11,7 @@ const state = {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Initial fetch if logged in
-    if(state.token) {
+    if (state.token) {
         document.getElementById('view-auth').style.display = 'none';
         document.getElementById('app').style.display = 'flex';
         document.getElementById('user-email-display').textContent = state.email || 'Developer';
@@ -62,13 +62,13 @@ function initApp() {
 function setupDocsNav() {
     const docsNav = document.getElementById('docs-nav');
     if (!docsNav) return;
-    
+
     docsNav.querySelectorAll('li[data-section]').forEach(item => {
         item.addEventListener('click', () => {
             // Update active state
             docsNav.querySelectorAll('li').forEach(l => l.classList.remove('active'));
             item.classList.add('active');
-            
+
             // Scroll to section
             const sectionId = item.getAttribute('data-section');
             const target = document.getElementById(sectionId);
@@ -81,31 +81,31 @@ function setupDocsNav() {
 
 function setupNavigation() {
     const defaultView = 'apikeys';
-    
+
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const view = e.currentTarget.getAttribute('data-target');
             switchView(view);
-            
+
             // Update active state in sidebar
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             e.currentTarget.classList.add('active');
         });
     });
-    
+
     // Initial view rendering handles hash navigation
     const hash = window.location.hash.replace('#', '');
     if (hash && document.getElementById(`view-${hash}`)) {
         switchView(hash);
         document.querySelectorAll('.nav-link').forEach(l => {
-            if(l.getAttribute('data-target') === hash) l.classList.add('active');
+            if (l.getAttribute('data-target') === hash) l.classList.add('active');
             else l.classList.remove('active');
         });
     } else {
         switchView(defaultView);
         document.querySelectorAll('.nav-link').forEach(l => {
-            if(l.getAttribute('data-target') === defaultView) l.classList.add('active');
+            if (l.getAttribute('data-target') === defaultView) l.classList.add('active');
             else l.classList.remove('active');
         });
     }
@@ -180,17 +180,17 @@ authForm.onsubmit = async (e) => {
             formData.append('password', password);
             res = await fetch(`${API_BASE}/auth/login`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: formData
             });
         } else {
             res = await fetch(`${API_BASE}/auth/signup`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email, password})
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
             });
         }
-        
+
         const data = await res.json();
 
         if (res.ok) {
@@ -243,9 +243,9 @@ function logout() {
 
 async function fetchApiKeys() {
     try {
-        const res = await fetch(`${API_BASE}/auth/keys`, {headers: authHeaders()});
-        if(!res.ok) {
-            if(res.status === 401) logout();
+        const res = await fetch(`${API_BASE}/auth/keys`, { headers: authHeaders() });
+        if (!res.ok) {
+            if (res.status === 401) logout();
             throw new Error("Failed to fetch keys");
         }
         state.apiKeys = await res.json();
@@ -263,7 +263,7 @@ async function generateKey(name) {
             method: 'POST',
             headers: authHeaders()
         });
-        if(res.ok) {
+        if (res.ok) {
             await fetchApiKeys();
             showToast('API Key generated successfully');
         } else {
@@ -281,7 +281,7 @@ async function deleteKey(id) {
             method: 'DELETE',
             headers: authHeaders()
         });
-        if(res.ok) {
+        if (res.ok) {
             await fetchApiKeys();
             showToast('API Key deleted');
         } else {
@@ -294,13 +294,13 @@ async function deleteKey(id) {
 }
 
 async function regenerateKey(id) {
-    if(!confirm("Are you sure? Old key will stop working immediately.")) return;
+    if (!confirm("Are you sure? Old key will stop working immediately.")) return;
     try {
         const res = await fetch(`${API_BASE}/auth/keys/${id}/regenerate`, {
             method: 'POST',
             headers: authHeaders()
         });
-        if(res.ok) {
+        if (res.ok) {
             await fetchApiKeys();
             showToast('API Key regenerated securely');
         } else {
@@ -314,10 +314,10 @@ async function regenerateKey(id) {
 
 function renderApiKeys() {
     const tbody = document.getElementById('api-keys-tbody');
-    if(!tbody) return;
-    
+    if (!tbody) return;
+
     tbody.innerHTML = '';
-    
+
     if (state.apiKeys.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding:40px;color:var(--text-muted)">No API keys found. Generate one to get started.</td></tr>';
         return;
@@ -356,7 +356,7 @@ const btnAnalyze = document.getElementById('btn-analyze-claim');
 
 function updatePlaygroundSelectors() {
     pgKeySelect.innerHTML = state.apiKeys.map(k => `<option value="${k.id}">${k.name} (${k.key.substring(0, 12)}...)</option>`).join('');
-    if(state.apiKeys.length > 0) {
+    if (state.apiKeys.length > 0) {
         pgKeySelect.value = state.apiKeys[0].id;
         pgCurlKey.textContent = state.apiKeys[0].key;
     } else {
@@ -376,13 +376,13 @@ async function simulatePlaygroundRequest() {
     const btn = document.getElementById('btn-analyze-claim');
     const claim = pgClaimInput.value.trim();
     const keyId = pgKeySelect.value;
-    
-    if(!claim) {
+
+    if (!claim) {
         showToast('Please enter a claim to verify', true);
         return;
     }
-    
-    if(!keyId) {
+
+    if (!keyId) {
         showToast('No API key selected. Please create one.', true);
         return;
     }
@@ -392,7 +392,7 @@ async function simulatePlaygroundRequest() {
         showToast('Selected API key not found.', true);
         return;
     }
-    
+
     // UI Loading state
     document.getElementById('pg-empty').style.display = 'none';
     document.getElementById('pg-response').style.display = 'none';
@@ -407,7 +407,7 @@ async function simulatePlaygroundRequest() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${selectedKey.key}`
             },
-            body: JSON.stringify({text: claim})
+            body: JSON.stringify({ text: claim })
         });
         const latency = performance.now() - start;
         let data;
@@ -418,41 +418,41 @@ async function simulatePlaygroundRequest() {
             const text = await res.text();
             throw new Error(text.slice(0, 100) || `Server error: ${res.status}`);
         }
-        
-        if(!res.ok) throw data;
+
+        if (!res.ok) throw data;
 
         // Update UI with response
         document.getElementById('pg-loading').style.display = 'none';
         document.getElementById('pg-response').style.display = 'flex';
-        
+
         const score = data.truth_score || 0;
         document.getElementById('resp-score').textContent = score.toFixed(2);
-        
+
         const status = data.classification || 'Uncertain';
         const stNode = document.getElementById('resp-status');
-        
+
         // Map classification to CSS class
         let statusClass = 'status-uncertain';
         if (status === 'Verified' || status === 'Likely True') statusClass = 'status-verified';
         if (status === 'False' || status === 'Likely False') statusClass = 'status-false';
-        
+
         stNode.className = 'resp-status ' + statusClass;
         stNode.textContent = status;
-        
+
         document.getElementById('resp-reason').textContent = data.reasoning || 'No reasoning provided.';
-        
+
         const evidences = data.evidences || [];
         document.getElementById('resp-sources').innerHTML = evidences.map(s => `
             <li>
                 <span class="name">${s.source_name}</span>
-                <span class="stance" style="color: ${s.stance === 'supports' ? 'var(--success)' : s.stance==='contradicts' ? 'var(--error)' : 'var(--slate-500)'}">${s.stance}</span>
+                <span class="stance" style="color: ${s.stance === 'supports' ? 'var(--success)' : s.stance === 'contradicts' ? 'var(--error)' : 'var(--slate-500)'}">${s.stance}</span>
             </li>
         `).join('') || '<li>No sources available</li>';
 
         document.getElementById('resp-json').textContent = JSON.stringify(data, null, 2);
 
         showToast(`Analysis completed successfully (${Math.round(latency)}ms)`);
-        
+
         // Refresh logs and key usage silently
         fetchLogs();
         fetchApiKeys(); // To update usage count
@@ -475,36 +475,36 @@ async function simulatePlaygroundRequest() {
 
 async function fetchLogs() {
     try {
-        const res = await fetch(`${API_BASE}/auth/logs`, {headers: authHeaders()});
-        if(res.ok) {
+        const res = await fetch(`${API_BASE}/auth/logs`, { headers: authHeaders() });
+        if (res.ok) {
             state.logs = await res.json();
             renderLogs();
             fetchAnalyticsData(); // Update analytics when logs are fetched
         } else {
-            if(res.status === 401) logout();
+            if (res.status === 401) logout();
             const errorData = await res.json();
             console.error("Failed to fetch logs:", errorData);
         }
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
 }
 
 function renderLogs() {
     const tbody = document.getElementById('logs-tbody');
-    if(!tbody) return;
+    if (!tbody) return;
     tbody.innerHTML = '';
-    
-    if(state.logs.length === 0) {
+
+    if (state.logs.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding:40px;color:var(--text-muted)">No logs found. Make a request in the Playground.</td></tr>`;
         return;
     }
-    
+
     state.logs.forEach(log => {
         let badgeClass = 'badge-success';
-        if(log.status === 'Likely False' || log.status === 'False') badgeClass = 'badge-error';
-        if(log.status === 'Uncertain' || log.status === 'Not Verifiable') badgeClass = 'badge-neutral';
-        
+        if (log.status === 'Likely False' || log.status === 'False') badgeClass = 'badge-error';
+        if (log.status === 'Uncertain' || log.status === 'Not Verifiable') badgeClass = 'badge-neutral';
+
         const date = new Date(log.timestamp);
-        
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${date.toLocaleString()}</td>
@@ -523,31 +523,31 @@ function fetchAnalyticsData() {
     const total = state.logs.length;
     let successCount = 0;
     let latSum = 0;
-    
+
     state.logs.forEach(l => {
-        if(l.status === 'Verified' || l.status === 'Likely True') successCount++;
+        if (l.status === 'Verified' || l.status === 'Likely True') successCount++;
         latSum += l.latency;
     });
-    
-    const rate = total > 0 ? Math.round((successCount/total)*100) : 0;
-    const avgLat = total > 0 ? Math.round(latSum/total) : 0;
-    
+
+    const rate = total > 0 ? Math.round((successCount / total) * 100) : 0;
+    const avgLat = total > 0 ? Math.round(latSum / total) : 0;
+
     const anaReqs = document.getElementById('ana-total');
     const anaRate = document.getElementById('ana-rate');
     const anaLat = document.getElementById('ana-latency');
-    
-    if(anaReqs) anaReqs.textContent = total;
-    if(anaRate) anaRate.textContent = rate + '%';
-    if(anaLat) anaLat.textContent = avgLat + 'ms';
+
+    if (anaReqs) anaReqs.textContent = total;
+    if (anaRate) anaRate.textContent = rate + '%';
+    if (anaLat) anaLat.textContent = avgLat + 'ms';
 
     renderAnalyticsTable();
 }
 
 function renderAnalyticsTable() {
     const tbody = document.getElementById('analytics-keys-tbody');
-    if(!tbody) return;
+    if (!tbody) return;
     tbody.innerHTML = '';
-    
+
     state.apiKeys.forEach(k => {
         const tr = document.createElement('tr');
         tr.innerHTML = `

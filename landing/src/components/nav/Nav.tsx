@@ -33,8 +33,8 @@ export default function Nav() {
 
         {/* Desktop CTA */}
         <div className="hidden lg:block">
-          <a href="/platform/index.html" 
-             className="inline-block text-ink border border-ink hover:bg-ink hover:text-paper font-mono font-medium text-[13px] tracking-[0.08em] px-5 py-2.5 transition-all duration-200 rounded-none cursor-pointer">
+          <a href="/platform/index.html"
+            className="inline-block text-ink border border-ink hover:bg-ink hover:text-paper font-mono font-medium text-[13px] tracking-[0.08em] px-5 py-2.5 transition-all duration-200 rounded-none cursor-pointer">
             Open Studio →
           </a>
         </div>

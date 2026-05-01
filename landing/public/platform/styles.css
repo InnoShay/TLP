@@ -489,3 +489,50 @@ textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; ove
     .docs-layout { flex-direction: column; }
     .docs-sidebar { width: 100%; }
 }
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -250px;
+        top: 0;
+        bottom: 0;
+        z-index: 1000;
+        transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: var(--shadow-lg);
+    }
+    .sidebar.open {
+        left: 0;
+    }
+    .mobile-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(11,11,10,0.5);
+        backdrop-filter: blur(2px);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s;
+    }
+    .mobile-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    .topbar {
+        padding: 0 16px;
+    }
+    .mobile-menu-btn {
+        display: flex !important;
+        margin-right: 12px;
+        background: transparent;
+        border: none;
+        color: var(--ink);
+        cursor: pointer;
+    }
+    .views-container {
+        padding: 16px;
+    }
+    .topbar-actions a span { display: none; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.mobile-menu-btn { display: none; }

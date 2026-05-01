@@ -51,9 +51,9 @@ export default function TooltipMockup() {
         {/* Sources */}
         <div className="px-4 pb-4 flex flex-col gap-2">
           {[
-            { domain: 'nature.com',   stance: 'SUPPORTS', color: 'text-verified' },
-            { domain: 'nasa.gov',     stance: 'SUPPORTS', color: 'text-verified' },
-            { domain: 'reuters.com',  stance: 'NEUTRAL',  color: 'text-inkfaint' },
+            { domain: 'nature.com', stance: 'SUPPORTS', color: 'text-verified' },
+            { domain: 'nasa.gov', stance: 'SUPPORTS', color: 'text-verified' },
+            { domain: 'reuters.com', stance: 'NEUTRAL', color: 'text-inkfaint' },
           ].map(({ domain, stance, color }) => (
             <div key={domain} className="flex items-center justify-between">
               <div className="flex items-center gap-2">

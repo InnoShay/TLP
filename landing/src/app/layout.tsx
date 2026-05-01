@@ -18,6 +18,7 @@ const ibmMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://credify-tlp.vercel.app'),
   title: 'Credify — Trust Layer Protocol',
   description: 'Real-time algorithmic fact-verification infrastructure. Extract claims, score truth, deploy at scale.',
   openGraph: {

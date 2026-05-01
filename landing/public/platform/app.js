@@ -82,6 +82,26 @@ function setupDocsNav() {
 function setupNavigation() {
     const defaultView = 'apikeys';
     
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const sidebar = document.querySelector('.sidebar');
+    
+    const toggleMobileMenu = () => {
+        if (!sidebar || !mobileOverlay) return;
+        sidebar.classList.toggle('open');
+        mobileOverlay.classList.toggle('active');
+    };
+    
+    const closeMobileMenu = () => {
+        if (!sidebar || !mobileOverlay) return;
+        sidebar.classList.remove('open');
+        mobileOverlay.classList.remove('active');
+    };
+    
+    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+    if (mobileOverlay) mobileOverlay.addEventListener('click', closeMobileMenu);
+    
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -91,6 +111,9 @@ function setupNavigation() {
             // Update active state in sidebar
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             e.currentTarget.classList.add('active');
+            
+            // Close mobile menu if open
+            closeMobileMenu();
         });
     });
     

@@ -30,10 +30,10 @@ export default function InstallSteps() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-0 mt-16">
       {steps.map((step, i) => (
-        <div 
-          key={step.num} 
-          style={{ 
-            borderTop: '2px solid #0E0E0E', 
+        <div
+          key={step.num}
+          style={{
+            borderTop: '2px solid #0E0E0E',
             paddingTop: '16px',
             paddingRight: i !== steps.length - 1 ? '32px' : '0',
             borderRight: i !== steps.length - 1 ? '1px solid rgba(14,14,14,0.13)' : 'none',

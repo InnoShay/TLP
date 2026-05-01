@@ -51,13 +51,13 @@ export default function TruthScoreWidget() {
     const runCycle = () => {
       setPhase('showing')
       count.set(0)
-      
+
       timeouts.push(setTimeout(() => setPhase('sources'), 400))
       timeouts.push(setTimeout(() => setPhase('scoring'), 1400))
       timeouts.push(setTimeout(() => setPhase('complete'), 2300))
       timeouts.push(setTimeout(() => setPhase('reasoning'), 2800))
       timeouts.push(setTimeout(() => setPhase('exiting'), 5500))
-      
+
       timeouts.push(setTimeout(() => {
         setClaimIndex((prev) => (prev + 1) % CLAIMS.length)
         runCycle()
@@ -79,9 +79,9 @@ export default function TruthScoreWidget() {
     }
   }, [phase, claim.score, count])
 
-  const overlineText = 
-    phase === 'showing' || phase === 'sources' || phase === 'scoring' 
-      ? 'ANALYZING CLAIM' 
+  const overlineText =
+    phase === 'showing' || phase === 'sources' || phase === 'scoring'
+      ? 'ANALYZING CLAIM'
       : 'VERIFICATION COMPLETE'
 
   return (
@@ -134,7 +134,7 @@ export default function TruthScoreWidget() {
               <motion.span style={{ color: '#C1121F' }} className={`font-mono font-semibold text-[56px] leading-[1] tracking-[-0.02em]`}>
                 {rounded}
               </motion.span>
-              
+
               <AnimatePresence>
                 {(phase === 'complete' || phase === 'reasoning') && (
                   <motion.span
