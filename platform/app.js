@@ -56,6 +56,27 @@ document.addEventListener('DOMContentLoaded', () => {
 function initApp() {
     fetchApiKeys();
     fetchLogs();
+    setupDocsNav();
+}
+
+function setupDocsNav() {
+    const docsNav = document.getElementById('docs-nav');
+    if (!docsNav) return;
+    
+    docsNav.querySelectorAll('li[data-section]').forEach(item => {
+        item.addEventListener('click', () => {
+            // Update active state
+            docsNav.querySelectorAll('li').forEach(l => l.classList.remove('active'));
+            item.classList.add('active');
+            
+            // Scroll to section
+            const sectionId = item.getAttribute('data-section');
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
 }
 
 function setupNavigation() {

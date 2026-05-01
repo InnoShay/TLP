@@ -306,23 +306,23 @@
                 <section id="view-docs" class="view">
                     <div class="docs-layout">
                         <div class="docs-sidebar">
-                            <ul class="docs-nav">
+                            <ul class="docs-nav" id="docs-nav">
                                 <li><strong>Getting Started</strong></li>
-                                <li class="active">Authentication</li>
-                                <li>Errors</li>
+                                <li class="active" data-section="doc-auth">Authentication</li>
+                                <li data-section="doc-errors">Errors</li>
                                 <li><strong>Verification API</strong></li>
-                                <li>Verify Claim</li>
-                                <li>Response Objects</li>
+                                <li data-section="doc-verify">Verify Claim</li>
+                                <li data-section="doc-response">Response Objects</li>
                             </ul>
                         </div>
-                        <div class="docs-content">
+                        <div class="docs-content" id="docs-scroll-area">
                             <div class="docs-section">
                                 <h1>Credify Verification API</h1>
                                 <p class="docs-lead">The Credify API allows you to programmatically verify claims against an enterprise-grade consensus network of trusted sources.</p>
                                 
                                 <hr class="docs-hr">
                                 
-                                <h2>Authentication</h2>
+                                <h2 id="doc-auth">Authentication</h2>
                                 <p>Authenticate your account by including your secret API key in the authorization header of your requests.</p>
                                 <div class="code-block no-bg mb-4">
                                     <pre><code>Authorization: Bearer sk_live_...</code></pre>
@@ -334,7 +334,34 @@
 
                                 <hr class="docs-hr">
 
-                                <h2>Verify a Claim</h2>
+                                <h2 id="doc-errors">Errors</h2>
+                                <p>Credify uses conventional HTTP response codes to indicate the success or failure of an API request.</p>
+                                <table class="docs-table mb-4">
+                                    <tr>
+                                        <td><strong>200</strong></td>
+                                        <td>OK — Request succeeded. Verification result returned.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>400</strong></td>
+                                        <td>Bad Request — The request was malformed. Check the <code>claim</code> parameter.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>401</strong></td>
+                                        <td>Unauthorized — Invalid or missing API key in the Authorization header.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>429</strong></td>
+                                        <td>Too Many Requests — Rate limit exceeded. Free: 100/min, Pro: 1,000/min.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>500</strong></td>
+                                        <td>Internal Server Error — Something went wrong on our end. Retry with exponential backoff.</td>
+                                    </tr>
+                                </table>
+
+                                <hr class="docs-hr">
+
+                                <h2 id="doc-verify">Verify a Claim</h2>
                                 <p>Analyzes a text string and returns a probabilistic truth score alongside source citations.</p>
                                 
                                 <h3>HTTP Request</h3>
@@ -354,7 +381,21 @@
                                     </tr>
                                 </table>
 
-                                <h3>Response Schema</h3>
+                                <hr class="docs-hr">
+
+                                <h2 id="doc-response">Response Objects</h2>
+                                <p>A successful verification returns a JSON object containing the analysis results.</p>
+
+                                <table class="docs-table mb-4">
+                                    <tr><td><strong>id</strong><br><span class="text-sm">string</span></td><td>Unique identifier for the verification (e.g. <code>veri_9a8b7c6d</code>).</td></tr>
+                                    <tr><td><strong>score</strong><br><span class="text-sm">float</span></td><td>Credibility score between 0.00 (false) and 1.00 (verified).</td></tr>
+                                    <tr><td><strong>status</strong><br><span class="text-sm">string</span></td><td>Classification label: Verified, Likely True, Uncertain, Likely False, or False.</td></tr>
+                                    <tr><td><strong>confidence</strong><br><span class="text-sm">float</span></td><td>Model confidence in the analysis between 0 and 1.</td></tr>
+                                    <tr><td><strong>sources</strong><br><span class="text-sm">array</span></td><td>Array of source objects with <code>name</code>, <code>stance</code>, and <code>url</code> fields.</td></tr>
+                                    <tr><td><strong>reasoning</strong><br><span class="text-sm">string</span></td><td>Human-readable explanation of the verification result.</td></tr>
+                                </table>
+
+                                <h3>Example Response</h3>
                                 <div class="code-block mb-4">
                                     <pre><code>{
   "id": "veri_9a8b7c6d5e4f3g2h1",
