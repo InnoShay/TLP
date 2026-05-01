@@ -1,0 +1,949 @@
+Here is the definitive, unambiguous, 10/10 Next.js prompt — engineered for maximum output quality:
+
+CREDIFY: TRUST LAYER PROTOCOL
+Complete Next.js Landing Page — Master Build Prompt
+
+0. WHO YOU ARE
+You are a principal design engineer with 15 years of experience shipping production interfaces for infrastructure companies. You have an obsessive eye for typographic precision, motion choreography, and spatial composition. You do not default to safe choices. You commit fully to a design direction and execute it without compromise.
+You are building the official public landing page for Credify: Trust Layer Protocol (TLP) — a real-time algorithmic misinformation firewall. Credify extracts factual claims from any text, cross-references them live against authoritative web sources via multi-source consensus analysis, and returns a deterministic Truth Score (0.0–1.0) with a classification label (Verified, Likely True, Uncertain, Likely False, False, Not Verifiable).
+The audience is developers, journalists, researchers, and enterprises. The page is their first and only impression. It must look like it was built by the design team at Stripe or Linear — but with a completely original identity that belongs only to Credify.
+
+1. TECH STACK — EXACT VERSIONS & SETUP
+npx create-next-app@latest credify-landing \
+  --typescript \
+  --tailwind \
+  --eslint \
+  --app \
+  --src-dir \
+  --import-alias "@/*"
+
+cd credify-landing
+
+npm install framer-motion@11 \
+            @radix-ui/react-dialog \
+            @radix-ui/react-tooltip \
+            lucide-react \
+            clsx \
+            tailwind-merge
+tailwind.config.ts — extend with this exact config:
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
+  theme: {
+    extend: {
+      colors: {
+        paper:    '#F5F0E8',
+        surface:  '#EDEAE0',
+        inset:    '#E0DDD3',
+        ink:      '#0E0E0E',
+        inkwarm:  '#3A3530',
+        inkfaint: '#7A7468',
+        red:      '#C1121F',
+        redhover: '#A00E19',
+        verified:       '#1A6B3A',
+        likelytrue:     '#2D7D46',
+        uncertain:      '#8B6914',
+        likelyfalse:    '#B5470A',
+        mono:           '#080808',
+        monosurface:    '#111110',
+        monoborder:     '#2A2A28',
+        monotext:       '#EEE8D5',
+        monofaint:      '#5A5650',
+      },
+      fontFamily: {
+        serif:  ['DM Serif Display', 'Georgia', 'serif'],
+        mono:   ['IBM Plex Mono', 'Courier New', 'monospace'],
+      },
+      fontSize: {
+        'display': ['72px', { lineHeight: '1.05', letterSpacing: '-0.02em' }],
+        'display-md': ['48px', { lineHeight: '1.1', letterSpacing: '-0.01em' }],
+        'display-sm': ['38px', { lineHeight: '1.1' }],
+        'h3': ['22px', { lineHeight: '1.2' }],
+        'body': ['15px', { lineHeight: '1.7' }],
+        'body-sm': ['13px', { lineHeight: '1.6' }],
+        'label': ['11px', { lineHeight: '1', letterSpacing: '0.12em' }],
+        'score': ['56px', { lineHeight: '1', letterSpacing: '-0.02em' }],
+      },
+      spacing: {
+        'section': '120px',
+        'section-mobile': '64px',
+        'card': '32px',
+      },
+      maxWidth: {
+        'content': '1200px',
+      },
+      borderRadius: {
+        'badge': '3px',
+      },
+      animation: {
+        'fade-up': 'fadeUp 480ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'fade-in': 'fadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
+      },
+      keyframes: {
+        fadeUp: {
+          '0%':   { opacity: '0', transform: 'translateY(24px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeIn: {
+          '0%':   { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+      },
+    },
+  },
+  plugins: [],
+}
+
+export default config
+src/app/layout.tsx:
+import type { Metadata } from 'next'
+import { DM_Serif_Display, IBM_Plex_Mono } from 'next/font/google'
+import './globals.css'
+
+const dmSerif = DM_Serif_Display({
+  weight: ['400'],
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  variable: '--font-serif',
+  display: 'swap',
+})
+
+const ibmMono = IBM_Plex_Mono({
+  weight: ['300', '400', '500', '600'],
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+})
+
+export const metadata: Metadata = {
+  title: 'Credify — Trust Layer Protocol',
+  description: 'Real-time algorithmic fact-verification infrastructure. Extract claims, score truth, deploy at scale.',
+  openGraph: {
+    title: 'Credify — Trust Layer Protocol',
+    description: 'The deterministic trust layer between information and belief.',
+    type: 'website',
+  },
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${dmSerif.variable} ${ibmMono.variable}`}>
+      <body className="bg-paper text-ink font-mono antialiased">
+        {children}
+      </body>
+    </html>
+  )
+}
+src/app/globals.css:
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+::selection {
+  background: #C1121F;
+  color: #F5F0E8;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #F5F0E8; }
+::-webkit-scrollbar-thumb { background: #0E0E0E22; }
+::-webkit-scrollbar-thumb:hover { background: #0E0E0E55; }
+
+html { scroll-behavior: smooth; }
+
+.bento-grid-protocol {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: auto auto auto;
+  gap: 10px;
+}
+
+.bento-grid-usecases {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: auto auto;
+  gap: 10px;
+}
+
+.bento-grid-classifications {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .bento-grid-protocol,
+  .bento-grid-usecases,
+  .bento-grid-classifications {
+    grid-template-columns: 1fr;
+  }
+}
+
+2. FILE STRUCTURE — BUILD EVERY FILE
+src/
+├── app/
+│   ├── layout.tsx
+│   ├── globals.css
+│   └── page.tsx                    ← assembles all sections
+├── components/
+│   ├── nav/
+│   │   └── Nav.tsx
+│   ├── hero/
+│   │   ├── Hero.tsx
+│   │   └── TruthScoreWidget.tsx    ← the animated claim widget
+│   ├── protocol/
+│   │   ├── Protocol.tsx
+│   │   └── BentoCard.tsx
+│   ├── studio/
+│   │   ├── Studio.tsx
+│   │   └── DashboardMockup.tsx
+│   ├── extension/
+│   │   ├── Extension.tsx
+│   │   ├── InstallSteps.tsx
+│   │   └── TooltipMockup.tsx
+│   ├── classifications/
+│   │   └── Classifications.tsx
+│   ├── api/
+│   │   └── ApiSection.tsx
+│   ├── usecases/
+│   │   └── UseCases.tsx
+│   ├── footer/
+│   │   └── Footer.tsx
+│   └── ui/
+│       ├── SectionLabel.tsx        ← reusable overline label
+│       ├── AnimatedSection.tsx     ← scroll-triggered wrapper
+│       └── CodeBlock.tsx           ← syntax-highlighted code
+
+3. DESIGN SYSTEM — ABSOLUTE LAW
+Aesthetic Identity
+Industrial Editorial. Aged Newsprint meets Precision Engineering. Not a startup. Not SaaS. A protocol. As serious as TCP/IP. As trustworthy as a published court record. The Financial Times designed by a compiler engineer. Every design decision must pass this test: "Does this communicate trust and precision, or does it communicate friendliness and approachability?" If the latter — reject it.
+Color Tokens (use Tailwind classes — never hardcode hex in components)
+Token
+Tailwind Class
+Hex
+Usage
+Background
+bg-paper
+#F5F0E8
+Page background
+Surface
+bg-surface
+#EDEAE0
+All bento cards
+Inset
+bg-inset
+#E0DDD3
+Code blocks, parsed claim boxes
+Primary text
+text-ink
+#0E0E0E
+Headlines, primary body
+Secondary text
+text-inkwarm
+#3A3530
+Secondary body, captions
+Tertiary text
+text-inkfaint
+#7A7468
+Labels, timestamps
+Accent
+text-red / bg-red
+#C1121F
+CTAs, scores, False label
+Border default
+border-ink/[.13]
+—
+All card borders
+Border strong
+border-ink/[.33]
+—
+Hover, active states
+Verified
+text-verified
+#1A6B3A
+Classification
+Likely True
+text-likelytrue
+#2D7D46
+Classification
+Uncertain
+text-uncertain
+#8B6914
+Classification
+Likely False
+text-likelyfalse
+#B5470A
+Classification
+Dashboard bg
+bg-mono
+#080808
+Mockup background
+Shape Rules — ZERO EXCEPTIONS
+border-radius: 0 on every card, button, input, panel, container. Everywhere.
+Only exception: Classification badge pills get rounded-badge (3px).
+No box-shadow anywhere. Depth via border contrast and background tone only.
+No gradients except the classification score bar in Section 5 and the subtle noise texture on the hero background.
+All borders: border border-ink/[.13]. Hover: border-ink/[.33].
+Typography Rules
+font-serif (DM Serif Display): All H1, H2, H3 headings, bento card titles, hero subheadline (italic variant)
+font-mono (IBM Plex Mono): Everything else — body, labels, buttons, nav, code, scores, captions
+Never mix — no serif body text, no mono headings
+Line height: leading-[1.7] for body, leading-[1.05] for display headlines
+Labels: always uppercase tracking-[0.12em] text-label font-medium text-inkfaint
+Spacing Rules
+Section padding: py-[120px] desktop, py-[64px] mobile
+Max content width: max-w-content mx-auto px-12 desktop, px-6 mobile
+Bento card padding: p-card (32px)
+Bento gap: gap-[10px] — tight, architectural
+Component gap inside cards: gap-4 (16px)
+
+4. FRAMER MOTION — ANIMATION CONTRACTS
+Import pattern for every animated component:
+'use client'
+import { motion, useInView, useAnimation } from 'framer-motion'
+import { useRef, useEffect } from 'react'
+Global easing — use this everywhere:
+const EASE = [0.16, 1, 0.3, 1] as const
+const DURATION = 0.48
+AnimatedSection.tsx — scroll-triggered wrapper (use on every bento card and section element):
+'use client'
+import { motion, useInView } from 'framer-motion'
+import { useRef } from 'react'
+
+interface Props {
+  children: React.ReactNode
+  delay?: number
+  className?: string
+}
+
+export function AnimatedSection({ children, delay = 0, className }: Props) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '-80px' })
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 24 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.48, ease: [0.16, 1, 0.3, 1], delay }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+Stagger pattern for bento grids:
+// Wrap bento grid in:
+<motion.div
+  variants={{
+    hidden: {},
+    show: { transition: { staggerChildren: 0.08 } }
+  }}
+  initial="hidden"
+  whileInView="show"
+  viewport={{ once: true, margin: '-80px' }}
+>
+  {/* Each card: */}
+  <motion.div
+    variants={{
+      hidden: { opacity: 0, y: 24 },
+      show:   { opacity: 1, y: 0, transition: { duration: 0.48, ease: [0.16, 1, 0.3, 1] } }
+    }}
+  >
+    {/* card content */}
+  </motion.div>
+</motion.div>
+Score counter animation (for TruthScoreWidget.tsx):
+// Animate a number from 0.00 to target using useMotionValue + useTransform
+import { useMotionValue, useTransform, animate, motion } from 'framer-motion'
+
+const count = useMotionValue(0)
+const rounded = useTransform(count, (v) => v.toFixed(2))
+
+useEffect(() => {
+  if (phase === 'scoring') {
+    const controls = animate(count, targetScore, {
+      duration: 0.9,
+      ease: 'easeOut',
+    })
+    return controls.stop
+  }
+}, [phase, targetScore])
+
+// Render: <motion.span>{rounded}</motion.span>
+Nav scroll behavior:
+'use client'
+import { useScroll, useMotionValueEvent } from 'framer-motion'
+import { useState } from 'react'
+
+const { scrollY } = useScroll()
+const [scrolled, setScrolled] = useState(false)
+
+useMotionValueEvent(scrollY, 'change', (y) => {
+  setScrolled(y > 80)
+})
+
+// Apply: scrolled ? 'bg-paper/92 backdrop-blur-md border-b border-ink/[.13]' : 'bg-transparent'
+// Transition: className with transition-all duration-300
+
+5. COMPONENT SPECIFICATIONS
+
+5.1 Nav.tsx
+Desktop (sticky, z-50, full width):
+Left: CREDIFY — font-serif text-[20px] text-ink tracking-tight
+Center: Nav links with · dividers 
+Links: font-mono text-[13px] text-inkwarm hover:text-ink transition-colors duration-200
+Dividers: text-inkfaint mx-3
+Items: Studio Extension API Docs
+Right: Open Studio → button 
+At rest: border border-ink text-ink bg-transparent
+Hover: bg-ink text-paper
+font-mono font-medium text-[13px] tracking-[0.08em] px-5 py-2.5 transition-all duration-200
+rounded-none explicitly set
+Mobile (< 768px): Hamburger button (3 horizontal lines, 1px stroke, --ink color). Click opens a motion.div that slides down from the nav with the 4 links stacked vertically, full width, border-b border-ink/[.13] between each. Close on link click.
+
+5.2 Hero.tsx + TruthScoreWidget.tsx
+Hero layout:
+grid grid-cols-1 lg:grid-cols-[58fr_42fr] gap-12 lg:gap-16
+min-h-screen items-center
+py-32 lg:py-0
+Background texture: Add a subtle noise/grain overlay to the hero only:
+// Absolutely positioned, full hero coverage, pointer-events-none
+// Use an SVG feTurbulence filter or a CSS background-image with
+// repeating radial dots at 0.5px, opacity-[0.03]
+// Creates "aged paper" texture without looking digital
+<div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+     style={{ backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'4\' height=\'4\'><circle cx=\'1\' cy=\'1\' r=\'0.8\' fill=\'%230E0E0E\'/></svg>")',
+              backgroundSize: '4px 4px' }} />
+Left column content (staggered entry on mount — use Framer Motion variants with staggerChildren: 0.12):
+Overline: TRUST LAYER PROTOCOL v1.0 — label style, text-inkfaint, fade up, delay 0
+H1 (2 lines, each animates separately, delay 0.12 and 0.24): 
+The internet lies.Credify doesn't.
+font-serif text-display text-ink
+Subheadline (DM Serif Display italic, delay 0.36): 
+A deterministic trust layer betweeninformation and belief.
+font-serif italic text-[22px] text-inkwarm leading-relaxed
+Body (delay 0.48): 
+Credify extracts every factual claim from any text,cross-references it against live authoritative sources,and returns a verified Truth Score in real-time.Built for developers. Deployed at scale.
+font-mono font-light text-body text-inkwarm max-w-[480px]
+CTA row (delay 0.60, flex flex-wrap gap-4): 
+Primary: Open Credify Studio → — bg-red hover:bg-redhover text-paper border border-red
+Secondary: ⬇ Download Extension — bg-transparent border border-ink text-ink hover:bg-ink hover:text-paper
+Both: font-mono font-medium text-[13px] tracking-[0.08em] px-7 py-3.5 transition-all duration-200 rounded-none
+TruthScoreWidget.tsx — the centerpiece:
+// State machine: 'idle' | 'showing' | 'analyzing' | 'scoring' | 'complete' | 'exiting'
+// Claim pool:
+
+const CLAIMS = [
+  {
+    text: 'NASA confirmed the discovery of liquid water on Mars in 2024.',
+    sources: ['nasa.gov', 'reuters.com', 'science.org'],
+    score: 0.91,
+    classification: 'VERIFIED',
+    color: 'verified',
+    reasoning: 'Multiple space agencies and peer-reviewed journals confirm this finding.',
+  },
+  {
+    text: 'The Eiffel Tower is the tallest structure in Europe.',
+    sources: ['britannica.com', 'bbc.com', 'theguardian.com'],
+    score: 0.23,
+    classification: 'FALSE',
+    color: 'red',
+    reasoning: 'The Burj Khalifa and several European towers surpass the Eiffel Tower.',
+  },
+  {
+    text: 'Electric vehicles produce zero lifetime carbon emissions.',
+    sources: ['nature.com', 'iea.org', 'carbonbrief.org'],
+    score: 0.54,
+    classification: 'UNCERTAIN',
+    color: 'uncertain',
+    reasoning: 'Manufacturing and electricity source significantly affect lifetime emissions.',
+  },
+]
+Sequence timing per claim (use useEffect + state machine, total ~6000ms per cycle):
+Time
+Phase
+Action
+0ms
+showing
+Claim text fades in (opacity 0→1, 300ms). Overline: ANALYZING CLAIM
+400ms
+sources
+3 source chips appear with 80ms Framer Motion stagger
+1400ms
+scoring
+Score counter starts (useMotionValue animate 0.00 → target, 900ms easeOut)
+2300ms
+complete
+Classification badge fades in. Overline changes to VERIFICATION COMPLETE
+2800ms
+reasoning
+Reasoning line slides up and fades in
+5500ms
+exiting
+Everything fades out over 400ms
+5900ms
+—
+Next claim begins
+Widget card:
+w-full max-w-[420px] border border-ink/[.13] bg-surface p-7
+No border-radius. Inside:
+Overline: animated text switch with AnimatePresence and mode="wait"
+Claim text: font-mono font-light text-[14px] text-inkwarm leading-relaxed min-h-[60px]
+Sources row: flex flex-wrap gap-2 mt-4 — each chip: border border-ink/[.13] px-2.5 py-1 font-mono text-label text-inkfaint
+Score: font-mono font-semibold text-score text-red mt-5 (color changes per classification)
+Badge: border rounded-badge px-3.5 py-1.5 font-mono font-medium text-label uppercase tracking-[0.1em] — border and text color = classification color
+Reasoning: font-mono font-light text-[12px] text-inkwarm leading-relaxed mt-3
+
+5.3 Protocol.tsx + BentoCard.tsx
+Section header:
+SectionLabel: "THE PROTOCOL"
+H2: "How Credify Works" — font-serif text-display-md text-ink mt-4 mb-12
+CSS Grid (.bento-grid-protocol from globals.css):
+Card
+Grid area
+Size feel
+Claim Extraction
+col-span-5 row-span-2
+Tall wide
+Source Aggregation
+col-span-4 row-span-1
+Wide
+Consensus Engine
+col-span-3 row-span-1
+Square
+Truth Score Output
+col-span-7 row-span-1
+Wide
+Redis Cache
+col-span-4 row-span-1
+Medium
+Audit Trail
+col-span-8 row-span-1
+Wide
+BentoCard.tsx props:
+interface BentoCardProps {
+  step?: string           // "STEP 01" etc.
+  title: string
+  body: string
+  icon: React.ReactNode   // SVG component
+  children?: React.ReactNode  // extra content (inset box, score bar)
+  className?: string      // grid placement
+}
+Card base: border border-ink/[.13] bg-surface p-card flex flex-col gap-4 hover:border-ink/[.33] transition-colors duration-200
+Icons: All inline SVG, 24px × 24px, stroke="currentColor" strokeWidth="1.5" fill="none":
+Claim Extraction: Parse tree — 3 circles connected by lines in a tree structure
+Source Aggregation: Globe with 3 radiating arc lines
+Consensus Engine: 3 horizontal bars + small checkmark overlay (top-right)
+Truth Score: Semicircle dial with a needle pointer
+Redis Cache: Lightning bolt, clean single path
+Audit Trail: 5 horizontal stacked lines (ledger icon)
+Card 1 (Claim Extraction) extra content — inset parsed claim box:
+<div className="mt-auto border border-ink/[.13] bg-inset p-4">
+  <p className="font-mono text-label text-inkfaint uppercase mb-3">CLAIM PARSED</p>
+  {[
+    ['Subject',   'NASA'],
+    ['Predicate', 'confirmed discovery'],
+    ['Object',    'liquid water on Mars'],
+    ['Temporal',  '2024'],
+    ['Type',      'FACTUAL'],
+  ].map(([k, v]) => (
+    <div key={k} className="flex gap-3 font-mono text-[12px] leading-relaxed">
+      <span className="text-inkfaint w-24 shrink-0">{k}</span>
+      <span className="text-inkwarm">→ {v}</span>
+    </div>
+  ))}
+</div>
+Card 4 (Truth Score) extra content — score bar:
+<div className="mt-auto">
+  <div className="relative h-[4px] w-full bg-inset border border-ink/[.13]">
+    {/* Gradient fill: red on left, green on right */}
+    <div className="absolute inset-0"
+         style={{ background: 'linear-gradient(to right, #C1121F, #8B6914, #1A6B3A)' }} />
+    {/* Marker at 87% position */}
+    <div className="absolute top-[-6px] translate-x-[-50%]"
+         style={{ left: '87%' }}>
+      <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-b-[7px]
+                      border-l-transparent border-r-transparent border-b-ink" />
+    </div>
+  </div>
+  <div className="flex justify-between mt-2">
+    <span className="font-mono text-label text-red">0.0 FALSE</span>
+    <span className="font-mono text-label text-verified">1.0 VERIFIED</span>
+  </div>
+</div>
+
+5.4 Studio.tsx + DashboardMockup.tsx
+Layout: grid grid-cols-1 lg:grid-cols-[44fr_56fr] gap-12 lg:gap-16 items-center
+Left prose: Same structure as hero left column but with Studio-specific copy. Feature list with → prefix. CTA: Open Credify Studio →.
+DashboardMockup.tsx — hidden lg:block:
+w-full h-[440px] bg-mono border border-monoborder flex overflow-hidden
+Left sidebar (w-[176px] bg-monosurface border-r border-monoborder shrink-0):
+Top: CREDIFY — font-serif text-[15px] text-monotext p-5
+Nav items (each h-9 px-4 flex items-center font-mono text-[12px]): 
+Dashboard, API Keys, Logs, Docs — text-monofaint
+Playground — ACTIVE: bg-[#1E1E1C] text-monotext border-l-2 border-red
+Main content (flex-1 p-5 flex flex-col gap-3 overflow-hidden):
+Label: PLAYGROUND — font-mono text-[10px] text-monofaint uppercase tracking-[0.12em]
+Two-panel (flex gap-3 flex-1): 
+Input panel (w-[48%] bg-[#111110] border border-monoborder p-3 flex flex-col gap-3): 
+Pre-filled claim text (font-mono text-[11px] text-[#C8C0B0] font-light leading-relaxed)
+VERIFY CLAIM button: bg-red text-paper font-mono font-medium text-[11px] px-4 py-2 mt-auto self-start
+Result panel (flex-1 bg-[#111110] border border-monoborder p-3): 
+Score: 0.89 — font-mono font-semibold text-[28px] text-red
+Badge: VERIFIED — border border-verified text-verified font-mono text-[10px] px-2 py-1 rounded-badge
+Divider: border-t border-monoborder my-2
+2 evidence items: domain + SUPPORTS chip
+Log strip (border-t border-monoborder px-5 py-3 shrink-0):
+// Header row
+<div className="grid grid-cols-[80px_1fr_50px_80px] font-mono text-[10px] text-monofaint uppercase tracking-[0.08em] mb-2">
+  <span>Time</span><span>Claim</span><span>Score</span><span>Status</span>
+</div>
+// 3 data rows — same grid, text-[#8A8680]
+// Score colored: 0.91 text-verified, 0.23 text-red, 0.54 text-uncertain
+
+5.5 Extension.tsx + InstallSteps.tsx + TooltipMockup.tsx
+Section header: H2: Verify Anything. Anywhere. Body + Download button + Docs link.
+InstallSteps.tsx:
+Desktop: grid grid-cols-5 gap-0 — 5 equal columns. Each step separated by a 1px vertical divider (border-r border-ink/[.13] except last), pr-8 right padding except last, pl-8 left padding except first.
+Each step:
+border-t-2 border-ink pt-4 — thick top border marks the step
+Step number: font-mono text-label text-inkfaint uppercase
+Title: font-serif text-[17px] text-ink mt-3
+Body: font-mono font-light text-[13px] text-inkwarm leading-relaxed mt-2
+01 Download & Unzip
+   Download the extension package
+   and unzip to a permanent location.
+
+02 Enable Developer Mode
+   Open Chrome, go to
+   chrome://extensions, toggle on.
+
+03 Load Unpacked
+   Click "Load Unpacked" and select
+   the Credify extension folder.
+
+04 Add Your API Key
+   Click the toolbar icon. Paste
+   your Studio API key and save.
+
+05 Start Verifying
+   Highlight any text on any page.
+   The Truth Score appears instantly.
+Mobile: grid grid-cols-1 gap-6.
+TooltipMockup.tsx:
+Container: relative w-full border border-ink/[.13] bg-surface p-8 overflow-hidden mt-16
+Fake article background (blurred, pointer-events-none):
+<div className="font-mono font-light text-[14px] text-inkwarm leading-relaxed blur-[1.5px] opacity-60 select-none">
+  <p>Scientists at the International Space Station have reported unprecedented...</p>
+  <p className="mt-3">
+    {'The latest findings, published in '}
+    <mark className="bg-red/15 text-ink not-italic px-0.5">
+      Nature Climate Science, suggest that global average temperatures
+    </mark>
+    {' have exceeded pre-industrial levels by...'}
+  </p>
+  <p className="mt-3">Researchers from 47 countries collaborated on the study...</p>
+</div>
+Tooltip card (absolutely positioned, top-4 right-4, animated with Framer Motion):
+// Mount animation:
+initial={{ opacity: 0, y: 8 }}
+animate={{ opacity: 1, y: 0 }}
+transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 1.2 }}
+Card: w-[300px] bg-paper border border-ink/[.33] shadow-none
+Structure:
+{/* Header */}
+<div className="flex justify-between items-center px-4 py-3 border-b border-ink/[.13]">
+  <span className="font-mono text-[10px] text-inkfaint uppercase tracking-[0.12em]">CREDIFY TLP</span>
+  <span className="font-mono text-[14px] text-inkfaint cursor-pointer hover:text-ink">×</span>
+</div>
+
+{/* Score row */}
+<div className="px-4 py-4 flex items-center gap-3">
+  <span className="font-mono font-semibold text-[36px] text-red leading-none">0.87</span>
+  <span className="border border-likelytrue text-likelytrue font-mono font-medium
+                   text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 rounded-badge">
+    LIKELY TRUE
+  </span>
+</div>
+
+{/* Divider */}
+<div className="border-t border-ink/[.13]" />
+
+{/* Reasoning */}
+<div className="px-4 py-3">
+  <p className="font-mono font-light text-[11px] text-inkwarm leading-relaxed">
+    Claim is predominantly supported across major scientific
+    publications and official agency reports.
+  </p>
+</div>
+
+{/* Sources */}
+<div className="px-4 pb-4 flex flex-col gap-2">
+  {[
+    { domain: 'nature.com',   stance: 'SUPPORTS', color: 'text-verified' },
+    { domain: 'nasa.gov',     stance: 'SUPPORTS', color: 'text-verified' },
+    { domain: 'reuters.com',  stance: 'NEUTRAL',  color: 'text-inkfaint' },
+  ].map(({ domain, stance, color }) => (
+    <div key={domain} className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div className="w-4 h-4 bg-inset border border-ink/[.13] shrink-0" />
+        <span className="font-mono text-[11px] text-inkwarm">{domain}</span>
+      </div>
+      <span className={`font-mono text-[10px] uppercase tracking-[0.08em] ${color}`}>
+        {stance}
+      </span>
+    </div>
+  ))}
+</div>
+
+5.6 Classifications.tsx
+H2: Classification Reference
+Grid: .bento-grid-classifications (6 equal columns, collapses to 2×3 on mobile via grid-cols-2 lg:grid-cols-6).
+Each card (border border-ink/[.13] bg-surface p-7 flex flex-col hover:border-ink/[.33] transition-colors duration-200):
+Top color bar: h-[3px] w-full mb-4 — background color = classification color (use inline style)
+const CLASSIFICATIONS = [
+  {
+    range: '≥ 0.85',
+    label: 'VERIFIED',
+    color: '#1A6B3A',
+    tailwindText: 'text-verified',
+    description: 'Strong multi-source consensus. Factually supported by independent evidence.',
+  },
+  {
+    range: '0.70–0.84',
+    label: 'LIKELY TRUE',
+    color: '#2D7D46',
+    tailwindText: 'text-likelytrue',
+    description: 'Predominantly supported with minor evidential gaps.',
+  },
+  {
+    range: '0.50–0.69',
+    label: 'UNCERTAIN',
+    color: '#8B6914',
+    tailwindText: 'text-uncertain',
+    description: 'Mixed signals detected across sources. Proceed with caution.',
+  },
+  {
+    range: '0.30–0.49',
+    label: 'LIKELY FALSE',
+    color: '#B5470A',
+    tailwindText: 'text-likelyfalse',
+    description: 'Predominantly contradicted by independent sources.',
+  },
+  {
+    range: '< 0.30',
+    label: 'FALSE',
+    color: '#C1121F',
+    tailwindText: 'text-red',
+    description: 'Strong multi-source contradiction. Claim is factually unsupported.',
+  },
+  {
+    range: '—',
+    label: 'NOT VERIFIABLE',
+    color: '#7A7468',
+    tailwindText: 'text-inkfaint',
+    description: 'Insufficient public data to make a determination.',
+  },
+]
+Render each:
+<div style={{ backgroundColor: c.color }} className="h-[3px] w-full mb-4" />
+<p className="font-mono text-label text-inkfaint uppercase">{c.range}</p>
+<p className={`font-serif text-[20px] mt-2 ${c.tailwindText}`}>{c.label}</p>
+<p className="font-mono font-light text-[13px] text-inkwarm leading-relaxed mt-3">{c.description}</p>
+
+5.7 ApiSection.tsx
+Two-column: grid grid-cols-1 lg:grid-cols-[44fr_56fr] gap-12 lg:gap-16 items-start
+Left prose: label, H2 Built for Developers, body, feature list with →, CTA Read Full API Docs → (outline button).
+CodeBlock.tsx component:
+Container: bg-ink border border-monoborder p-7
+Header row: label left (REQUEST or RESPONSE 200 OK), with 200 OK in text-verified font-medium. Thin divider border-t border-monoborder mt-3 mb-4.
+Request block — render as <pre><code> with manual <span> coloring:
+Colors:
+  HTTP method (POST):      #C1121F
+  Route (/v1/verify):      #EEE8D5
+  HTTP version (HTTP/1.1): #5A5650
+  Header keys:             #7A9EC7
+  Header values:           #A8C07A
+  Colon/punctuation:       #5A5650
+  JSON keys:               #7A9EC7  (with quotes)
+  JSON string values:      #A8C07A  (with quotes)
+  JSON numbers/booleans:   #C1121F
+  JSON punctuation { } [ ]: #5A5650
+  Comments:                #5A5650  (italic)
+Thin divider between request and response blocks.
+Response block with full JSON showing truth_score, classification, claims[] (with subject/predicate/temporal/type), evidence[] (with source/stance/confidence), reasoning.
+
+5.8 UseCases.tsx
+.bento-grid-usecases (12 columns, 2 rows):
+Card
+Grid area
+Newsrooms
+col-span-5 row-span-1
+Academic Research
+col-span-7 row-span-1
+Policy & Governance
+col-span-7 row-span-1
+Individual Users
+col-span-5 row-span-1
+Each card: icon (SVG, 24px stroke), sector label, serif title, mono body, → Learn more link in text-inkfaint hover:text-ink.
+Newsrooms
+Fact-check articles, wire reports, and sourced quotes
+before publication. Integrate via REST API into
+existing editorial workflow tools.
+
+Academic Research
+Validate citations and verify empirical claims in
+research papers. Flag assertions that lack independent
+corroboration across peer-reviewed sources.
+
+Policy & Governance
+Deploy Credify as a compliance and media-monitoring
+layer. Audit public statements, policy claims, and
+institutional communications at scale.
+
+Individual Users
+The Chrome Extension brings real-time fact-checking
+to everyday browsing. Highlight. Verify. Decide.
+No technical knowledge required.
+
+5.9 Footer.tsx
+border-t border-ink/[.13] bg-paper py-16 px-12
+Three columns (grid grid-cols-1 lg:grid-cols-3 gap-12):
+Left:
+CREDIFY — font-serif text-[24px] text-ink
+Built to defend truth. — font-mono font-light text-[13px] text-inkwarm mt-2
+© 2025 Credify. Trust Layer Protocol. — font-mono text-[12px] text-inkfaint mt-1
+Center (link grid grid grid-cols-2 gap-x-8 gap-y-2): Studio, Extension, API Reference, Documentation, GitHub, Status font-mono text-[13px] text-inkwarm hover:text-ink transition-colors duration-200
+Right:
+● SYSTEMS OPERATIONAL — font-mono font-medium text-[11px] uppercase tracking-[0.12em] text-verified flex items-center gap-2 
+The ● should be a w-2 h-2 rounded-full bg-verified animate-pulse
+TLP v1.0.0 — font-mono text-[12px] text-inkfaint mt-2
+
+6. page.tsx — FINAL ASSEMBLY
+import Nav from '@/components/nav/Nav'
+import Hero from '@/components/hero/Hero'
+import Protocol from '@/components/protocol/Protocol'
+import Studio from '@/components/studio/Studio'
+import Extension from '@/components/extension/Extension'
+import Classifications from '@/components/classifications/Classifications'
+import ApiSection from '@/components/api/ApiSection'
+import UseCases from '@/components/usecases/UseCases'
+import Footer from '@/components/footer/Footer'
+
+export default function Home() {
+  return (
+    <>
+      <Nav />
+      <main>
+        <section id="home"      className="max-w-content mx-auto px-12">
+          <Hero />
+        </section>
+        <section id="protocol"  className="max-w-content mx-auto px-12 py-[120px]">
+          <Protocol />
+        </section>
+        <section id="studio"    className="max-w-content mx-auto px-12 py-[120px] border-t border-ink/[.13]">
+          <Studio />
+        </section>
+        <section id="extension" className="max-w-content mx-auto px-12 py-[120px] border-t border-ink/[.13]">
+          <Extension />
+        </section>
+        <section id="docs"      className="max-w-content mx-auto px-12 py-[120px] border-t border-ink/[.13]">
+          <Classifications />
+        </section>
+        <section id="api"       className="max-w-content mx-auto px-12 py-[120px] border-t border-ink/[.13]">
+          <ApiSection />
+        </section>
+        <section id="usecases"  className="max-w-content mx-auto px-12 py-[120px] border-t border-ink/[.13]">
+          <UseCases />
+        </section>
+      </main>
+      <Footer />
+    </>
+  )
+}
+
+7. REUSABLE UI COMPONENTS
+SectionLabel.tsx:
+export function SectionLabel({ children }: { children: string }) {
+  return (
+    <p className="font-mono font-medium text-label text-inkfaint uppercase tracking-[0.12em]">
+      {children}
+    </p>
+  )
+}
+Button pattern (no component needed — just use this className string consistently):
+// Primary (filled red):
+"bg-red hover:bg-redhover text-paper border border-red font-mono font-medium text-[13px] tracking-[0.08em] px-7 py-3.5 transition-all duration-200 rounded-none cursor-pointer"
+
+// Secondary (outline):
+"bg-transparent hover:bg-ink hover:text-paper text-ink border border-ink font-mono font-medium text-[13px] tracking-[0.08em] px-7 py-3.5 transition-all duration-200 rounded-none cursor-pointer"
+
+8. URLS & HREFS
+Element
+href
+Open Credify Studio
+https://studio.credify.dev
+Download Extension
+https://credify.dev/extension/download.zip
+Read the Docs
+https://docs.credify.dev
+Read Full API Docs
+https://docs.credify.dev/api
+GitHub footer link
+https://github.com/credify-dev
+Status footer link
+https://status.credify.dev
+
+9. MOBILE RULES (< 768px)
+All sections: py-16 px-6
+bento-grid-* classes: collapse to grid-cols-1
+grid-cols-[58fr_42fr] hero: becomes grid-cols-1 — prose above, widget below
+Dashboard mockup (DashboardMockup): hidden lg:block — replaced by a static score card on mobile: 
+<div className="lg:hidden border border-ink/[.13] bg-surface p-6">  <p className="font-mono text-label text-inkfaint uppercase mb-4">SAMPLE RESULT</p>  <p className="font-mono font-semibold text-[48px] text-red leading-none">0.91</p>  <p className="font-serif text-[20px] text-verified mt-2">Verified</p>  <p className="font-mono font-light text-[13px] text-inkwarm mt-3 leading-relaxed">    Strong multi-source consensus detected across independent sources.  </p></div>
+Install steps: grid-cols-1 gap-6 with border-t-2 on each step, no vertical dividers
+Classification grid: grid-cols-2
+API code block: overflow-x-auto with -webkit-overflow-scrolling: touch
+Nav: hamburger, slide-down menu
+
+10. FINAL COMMANDMENTS
+'use client' on every component that uses hooks, Framer Motion, or browser APIs.
+Zero hardcoded hex values in component JSX. Tailwind classes only. Inline styles only for dynamic values (classification colors, score bar gradient).
+Zero border-radius except rounded-badge on classification pills.
+Zero box-shadow anywhere in the codebase.
+Zero Lorem Ipsum. Every string of copy is specified in this document — use it verbatim.
+Zero external UI libraries except what is listed in Section 1. No shadcn components used as-is — if used, fully restyle to match this system.
+AnimatedSection wraps every bento card, every section heading, every major content block. Nothing appears instantly — everything earns its place on screen.
+TruthScoreWidget loops infinitely through all 3 claims with no user interaction.
+All SVG icons are inline — no icon library imports. Custom-drawn stroke icons only.
+next/font/google for fonts — never a <link> tag, never a CDN import.
+The nav is always on top (z-50) and transitions smoothly between transparent and frosted glass states.
+useInView with once: true — scroll animations never replay. Elements animate in once and stay.
+Every interactive element has a hover: state. No exceptions. No static clickable elements.
+transition-all duration-200 is the standard for all hover/focus transitions.
+This page must pass a Lighthouse performance score of 90+. Use next/font for zero layout shift. Use loading="lazy" on any images. Keep JS bundle lean.
+
+11. DEPLOYMENT
+npm run build
+# Outputs to .next/
+
+# Deploy to Vercel:
+npx vercel --prod
+# Live at: https://credify.dev (or vercel subdomain)
+Add vercel.json:
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" }
+      ]
+    }
+  ]
+}
+
+This is the complete specification. Every pixel, every animation, every word, every color is defined. There are no ambiguous decisions left for the coder to make. Execute precisely. The result will be unforgettable.
