@@ -19,6 +19,7 @@ from services.claim_extractor import extract_claims
 from services.source_aggregator import search_all_sources
 from services.evidence_analyzer import analyze_evidence
 from services.consensus import calculate_consensus
+from services.cloudant_db import save_verification_to_cloudant
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["verification"])
@@ -211,7 +212,12 @@ async def verify_claim(
         await session.rollback()
 
     # ── Step 8: Cache the result ──
-    await cache.set(request.text, response.model_dump(mode="json"))
+    response_dict = response.model_dump(mode="json")
+    await cache.set(request.text, response_dict)
+    
+    # ── Step 9: IBM Cloudant Persistence ──
+    # Save the JSON representation directly to the NoSQL database for easy dashboard viewing
+    save_verification_to_cloudant(response_dict, key_name)
 
     logger.info(
         f"✅ Verification complete: {truth_score.classification.value} "

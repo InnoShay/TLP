@@ -73,6 +73,7 @@ class User(Base):
     id = Column(String, primary_key=True)
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
+    role = Column(String, default="user", nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     api_keys = relationship("ApiKey", back_populates="user")

@@ -4,11 +4,15 @@ import secrets
 from datetime import datetime, timedelta
 from typing import Optional, List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import jwt
+from jwt import PyJWKClient
+import httpx
+import bcrypt
 
 from database import get_session, User, ApiKey, ApiLog
 from models import UserSignup, UserLogin, TokenResponse, ApiKeyResponse, ApiLogResponse
@@ -19,9 +23,19 @@ SECRET_KEY = os.environ.get("JWT_SECRET", "supersecret-dev-key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+# IBM App ID Configuration
+IBM_APPID_CLIENT_ID = os.environ.get("IBM_APPID_CLIENT_ID")
+IBM_APPID_TENANT_ID = os.environ.get("IBM_APPID_TENANT_ID")
+IBM_APPID_SECRET = os.environ.get("IBM_APPID_SECRET")
+IBM_APPID_OAUTH_SERVER_URL = os.environ.get("IBM_APPID_OAUTH_SERVER_URL")
 
-import bcrypt
+ADMIN_EMAILS = [e.strip() for e in os.environ.get("ADMIN_EMAILS", "admin@tlp.com").split(",")]
+
+jwks_client = None
+if IBM_APPID_OAUTH_SERVER_URL:
+    jwks_client = PyJWKClient(f"{IBM_APPID_OAUTH_SERVER_URL}/publickeys")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 def verify_password(plain_password: str, hashed_password: str):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
@@ -42,12 +56,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    user_id = None
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise credentials_exception
+        user_id = payload.get("sub")
     except jwt.PyJWTError:
+        raise credentials_exception
+
+    if user_id is None:
         raise credentials_exception
         
     result = await session.execute(select(User).where(User.id == user_id))
@@ -55,6 +71,76 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
     if user is None:
         raise credentials_exception
     return user
+
+@router.get("/appid/login")
+async def appid_login(request: Request):
+    if not IBM_APPID_OAUTH_SERVER_URL:
+        raise HTTPException(status_code=500, detail="IBM App ID is not configured.")
+    redirect_uri = str(request.url_for('appid_callback'))
+    auth_url = f"{IBM_APPID_OAUTH_SERVER_URL}/authorization?client_id={IBM_APPID_CLIENT_ID}&response_type=code&redirect_uri={redirect_uri}&scope=openid profile email"
+    return RedirectResponse(url=auth_url)
+
+@router.get("/appid/callback")
+async def appid_callback(code: str, request: Request, session: AsyncSession = Depends(get_session)):
+    redirect_uri = str(request.url_for('appid_callback'))
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{IBM_APPID_OAUTH_SERVER_URL}/token",
+            auth=(IBM_APPID_CLIENT_ID, IBM_APPID_SECRET),
+            data={
+                "grant_type": "authorization_code",
+                "code": code,
+                "redirect_uri": redirect_uri
+            }
+        )
+    if resp.status_code != 200:
+        raise HTTPException(status_code=400, detail="Failed to exchange code for token")
+        
+    tokens = resp.json()
+    access_token = tokens["access_token"]
+    id_token = tokens.get("id_token")
+
+    id_payload = jwt.decode(id_token, options={"verify_signature": False}) if id_token else {}
+    access_payload = jwt.decode(access_token, options={"verify_signature": False}) if access_token else {}
+
+    user_id = id_payload.get("sub", "")
+    email = id_payload.get("email", "")
+
+    if not user_id:
+        raise HTTPException(status_code=400, detail="Invalid token from App ID")
+
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    
+    # Determine role based on IBM App ID assigned roles
+    app_id_roles = access_payload.get("roles", [])
+    if not app_id_roles:
+        app_id_roles = id_payload.get("roles", [])
+        
+    # Check if 'Admin' or 'admin' is in the roles list from IBM
+    if any(r.lower() == "admin" for r in app_id_roles):
+        role = "admin"
+    else:
+        # Fallback to local ADMIN_EMAILS for safety if App ID roles aren't configured yet
+        role = "admin" if email in ADMIN_EMAILS else "user"
+    
+    if not user:
+        user = User(id=user_id, email=email, password_hash="oauth", role=role)
+        session.add(user)
+        await session.commit()
+    elif user.role != role:
+        user.role = role
+        await session.commit()
+
+    # Issue a local JWT token for robust session management
+    local_access_token = create_access_token(
+        data={"sub": user.id}, 
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+
+    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:8000/platform/index.html")
+    return RedirectResponse(url=f"{frontend_url}?token={local_access_token}&email={email}&role={role}")
+
 
 
 @router.post("/signup", response_model=TokenResponse)

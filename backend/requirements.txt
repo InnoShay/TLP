@@ -11,4 +11,7 @@ python-dotenv==1.0.1
 python-multipart==0.0.20
 passlib
 bcrypt
-pyjwt
+PyJWT[crypto]
+ibm-watson
+ibm-cloud-sdk-core
+ibmcloudant

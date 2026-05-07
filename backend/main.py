@@ -11,6 +11,8 @@ from database import init_db
 from services.cache import cache
 from routers.verify import router as verify_router
 from routers.auth import router as auth_router
+from routers.speech import router as speech_router
+from routers.nlu import router as nlu_router
 
 # ── Logging Setup ──
 logging.basicConfig(
@@ -59,6 +61,8 @@ app.add_middleware(
 # ── Mount Routers ──
 app.include_router(auth_router)
 app.include_router(verify_router)
+app.include_router(speech_router)
+app.include_router(nlu_router)
 
 
 @app.get("/")

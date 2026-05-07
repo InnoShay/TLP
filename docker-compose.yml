@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tlp_backend
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app  # Maps local files to container for live development
+    restart: unless-stopped
+    networks:
+      - tlp_network
+
+  frontend:
+    image: nginx:alpine
+    container_name: tlp_frontend
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/usr/share/nginx/html:ro  # Serves the static HTML/JS from the root directory
+    restart: unless-stopped
+    networks:
+      - tlp_network
+
+networks:
+  tlp_network:
+    driver: bridge
