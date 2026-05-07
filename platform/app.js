@@ -1,5 +1,7 @@
 // Application Config & Auth State
-const API_BASE = "http://localhost:8001/api";
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? "http://localhost:8001/api" 
+    : "https://tlp-bvdp.onrender.com/api";
 const state = {
     apiKeys: [],
     logs: [],
